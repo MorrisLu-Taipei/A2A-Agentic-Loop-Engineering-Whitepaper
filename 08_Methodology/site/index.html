@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>用 3×AI 協助寫期刊論文 · 方法論互動介紹 | TigerAI</title>
+<meta name="description" content="以 ALE 論文發表為案例,介紹 3×AI + 人類的 stage-gate 論文生產方法論;含情境故事、流程與 gate、A2A Agent 使用。"/>
+<link rel="icon" type="image/png" href="vendor/tigerai_logo.png"/>
+<link rel="stylesheet" href="vendor/shell.css"/>
+<style>
+  .lead{font-size:15px;color:var(--muted);line-height:1.85;max-width:880px}
+  .card{background:#fff;border:1px solid var(--tiger-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 26px;margin:16px 0}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .eyebrow{font-size:12px;letter-spacing:.14em;font-weight:800;color:var(--tiger-teal);text-transform:uppercase}
+  h1.big{font-size:30px;font-weight:900;color:var(--tiger-navy);margin:.2em 0 .1em;line-height:1.25}
+  .chip{display:inline-block;background:var(--tiger-teal-pale);color:var(--tiger-teal);border:1px solid var(--tiger-teal-line);border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:700;margin:3px 4px 3px 0;cursor:pointer}
+  .chip.orange{background:var(--tiger-orange-pale);color:var(--tiger-orange-dark);border-color:#F0CF9A}
+  .stage{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px dashed var(--tiger-border)}
+  .stage:last-child{border-bottom:0}
+  .stage .no{flex:none;width:46px;height:46px;border-radius:12px;background:var(--tiger-teal-pale);color:var(--tiger-teal);font-weight:900;display:grid;place-items:center;font-size:14px;border:1px solid var(--tiger-teal-line)}
+  .stage .gate{font-size:12px;font-weight:800;color:var(--tiger-orange-dark);background:var(--tiger-orange-pale);border:1px solid #F0CF9A;border-radius:8px;padding:2px 8px;white-space:nowrap}
+  .stage h4{margin:0 0 4px;font-size:15.5px;color:var(--tiger-navy)}
+  .stage p{margin:.2em 0;font-size:13.5px;color:var(--muted);line-height:1.65}
+  .fig{background:#fff;border:1px solid var(--tiger-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin:16px 0;overflow:auto}
+  .fig img,.fig svg{display:block;max-width:100%;height:auto;margin:0 auto}
+  .figcap{font-size:12.5px;color:var(--muted);margin:8px 4px 2px;text-align:center}
+  .tool{border-left:4px solid var(--tiger-teal)}
+  .note{background:var(--tiger-orange-pale);border:1px solid #F0CF9A;border-radius:12px;padding:12px 16px;font-size:13px;color:var(--tiger-navy);line-height:1.7;margin:14px 0}
+  code,kbd{background:#eef4f5;border:1px solid var(--tiger-border);border-radius:6px;padding:1px 6px;font-size:12.5px;color:var(--brand-strong)}
+  /* floating help */
+  #help{position:fixed;right:18px;bottom:18px;width:320px;max-width:92vw;background:#fff;border:1px solid var(--tiger-border);border-radius:16px;box-shadow:0 20px 50px rgba(31,71,92,.18);z-index:60;font-size:13px}
+  #help .hh{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--tiger-border);cursor:move;background:var(--tiger-teal-pale);border-radius:16px 16px 0 0;color:var(--tiger-teal);font-weight:800}
+  #help .hh .x{margin-left:auto;cursor:pointer;border:0;background:none;font-size:16px;color:var(--muted)}
+  #help .hb{padding:14px;line-height:1.7}
+  #help .hb .t{font-weight:800;color:var(--tiger-navy);margin-bottom:4px}
+  #help.min .hb{display:none}
+  #helpFab{position:fixed;right:18px;bottom:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#EE9E39,#D98220);color:#fff;border:0;font-size:22px;cursor:pointer;box-shadow:0 14px 30px rgba(182,107,22,.4);z-index:59;display:none}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="tigerHeader"></div>
+<div class="shell" id="tigerShell">
+  <nav class="sidebar" id="tigerSidebar"></nav>
+  <main class="content">
+
+    <!-- HERO -->
+    <section id="intro">
+      <div class="eyebrow" data-i18n="eyebrow">方法論 · 以 ALE 論文為案例</div>
+      <h1 class="big" data-i18n="h1">用 3×AI 協助你寫第一篇期刊論文</h1>
+      <p class="lead" data-i18n="lead">不是「叫 AI 生一篇」,而是讓<b>多個 AI 互相把關 + 人類查證 + 過關才往下</b>,把一個真實題目做到<b>可發表、可稽核、不會自信地出錯</b>。本頁用我們自己發表 ALE 論文的真實過程,帶你走一遍。</p>
+      <div style="margin:10px 0 4px">
+        <span class="chip" data-key="producer">生產者 ≠ 審查者</span>
+        <span class="chip" data-key="evidence">證據 &gt; 共識</span>
+        <span class="chip" data-key="gate">過關才往下</span>
+        <span class="chip orange" data-key="human">人類負最終責任</span>
+      </div>
+    </section>
+
+    <!-- #2 情境故事 -->
+    <section id="story" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_story">① 情境故事:第一次用 AI 寫論文的人</div>
+      <p class="page-sub" data-i18n="story_sub">主角:一位資工。從「能不能用 AI 做出 dashboard」的實驗,一路發展出 ALE 方法論,最後用同一套 loop 寫出這篇論文。</p>
+      <div class="card">
+        <p class="lead" data-i18n="story_1"><b>第一幕 · 一個實驗:能不能用 AI 把 dashboard 做出來?</b>我是資工。我想驗證一件事——<b>讓 AI 一步步把一整個儀表板做出來</b>。於是拿電子發票開放資料當題材,真的讓 AI 從抓資料、聚合、畫圖、到部署做了一遍。</p>
+        <p class="lead" data-i18n="story_2"><b>第二幕 · 從「做一次」到「重複讓 AI 做」(loop engineering)。</b>做出來之後我想:這不該只做一次。應該變成一條<b>可重複的迴圈,讓 AI 一輪一輪自動產出</b>——這就是我當時的念頭:把它工程化成一個 loop——我們稱之為 Agentic Loop Engineering(ALE)。</p>
+        <p class="lead" data-i18n="story_3"><b>第三幕 · 要重複,就得治理。</b>要讓 AI 重複又可靠地做,每一輪都得「可信」。途中踩到一個坑:驗證時拿儀表板對資料庫,兩邊都顯示「對」,其實<b>一起吃同一份膨脹 4.5 倍的壞資料、一起錯還互相背書</b>。這逼出核心問題:<b>當驗證 AI 的也是 AI,會自我背書</b>。於是發展出 ALE 的治理:機械閘、三層驗證、技能資產化。</p>
+        <p class="lead" data-i18n="story_4"><b>第四幕 · 連寫這篇論文,都用同一套 loop。</b>把 ALE 用在「寫 ALE 論文」本身:Claude 寫、Codex 對抗審查、Gemini 形式化,而我<b>不盲信任何 AI</b>——讀 PDF 原文、跑真實程式查證。按下發表前抓回三個錯(含一段 AI 編造的假日誌),正式論文等第二案數據,先發誠實的預印本。</p>
+      </div>
+      <div class="fig">
+        <!-- 圖三:使用情境故事流程圖 (SVG) -->
+        <svg viewBox="0 0 990 160" role="img" aria-label="情境故事流程圖">
+          <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5D7589"/></marker></defs>
+          <g font-family="Noto Sans TC,system-ui" font-size="12" text-anchor="middle">
+            <g>
+              <rect x="8" y="45" width="150" height="66" rx="12" fill="#FFF0DA" stroke="#F0CF9A"/>
+              <text x="83" y="68" font-weight="800" fill="#B66B16">① 用 AI 做</text>
+              <text x="83" y="85" fill="#B66B16" font-weight="800">dashboard</text>
+              <text x="83" y="101" fill="#5D7589">(資工的實驗)</text>
+            </g>
+            <g>
+              <rect x="178" y="45" width="155" height="66" rx="12" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="255" y="68" font-weight="800" fill="#167C77">② 想成 loop</text>
+              <text x="255" y="88" fill="#5D7589">重複讓 AI 做</text>
+            </g>
+            <g>
+              <rect x="353" y="40" width="160" height="76" rx="12" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="433" y="62" font-weight="800" fill="#167C77">③ 重複→需治理</text>
+              <text x="433" y="82" fill="#5D7589">踩到同源假通過</text>
+              <text x="433" y="98" fill="#5D7589">(AI 驗 AI 會背書)</text>
+            </g>
+            <g>
+              <rect x="533" y="40" width="150" height="76" rx="12" fill="#fff" stroke="#167C77" stroke-width="1.6"/>
+              <text x="608" y="62" font-weight="800" fill="#102F4C">④ 發展 ALE</text>
+              <text x="608" y="82" fill="#5D7589">機械閘/三層驗證</text>
+              <text x="608" y="98" fill="#5D7589">技能資產化</text>
+            </g>
+            <g>
+              <rect x="703" y="40" width="150" height="76" rx="12" fill="#fff" stroke="#167C77" stroke-width="1.6"/>
+              <text x="778" y="62" font-weight="800" fill="#102F4C">⑤ 3×AI 寫論文</text>
+              <text x="778" y="82" fill="#5D7589">對抗審查+查證</text>
+              <text x="778" y="98" fill="#B66B16">抓回 3 個錯</text>
+            </g>
+            <g>
+              <rect x="873" y="45" width="110" height="66" rx="12" style="fill:#102F4C"/>
+              <text x="928" y="72" font-weight="800" fill="#fff">⑥ 預印本</text>
+              <text x="928" y="92" fill="#DDF3F1">DOI</text>
+            </g>
+            <line x1="158" y1="78" x2="176" y2="78" stroke="#5D7589" marker-end="url(#ar)"/>
+            <line x1="333" y1="78" x2="351" y2="78" stroke="#5D7589" marker-end="url(#ar)"/>
+            <line x1="513" y1="78" x2="531" y2="78" stroke="#5D7589" marker-end="url(#ar)"/>
+            <line x1="683" y1="78" x2="701" y2="78" stroke="#5D7589" marker-end="url(#ar)"/>
+            <line x1="853" y1="78" x2="871" y2="78" stroke="#5D7589" marker-end="url(#ar)"/>
+          </g>
+        </svg>
+        <div class="figcap" data-i18n="fig3">圖三 · 使用情境故事流程圖(以 ALE 論文真實過程)</div>
+      </div>
+    </section>
+
+    <!-- #3 流程 stages / gates -->
+    <section id="process" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_proc">② AI 協助寫論文的流程:Stages 與 Gates</div>
+      <p class="page-sub" data-i18n="proc_sub">每一階段有一個 gate(過關條件);沒過不准往下。點下方階段卡,右下說明視窗會顯示該階段的「🔧 執行重點 + 🎯 使用情境」。</p>
+
+      <div class="fig">
+        <div class="figcap" data-i18n="fig1" style="margin-top:2px">圖一 · 方法論架構(角色 × stage-gate × 證據主幹)</div>
+        <!-- 圖一:系統架構圖 (SVG) -->
+        <svg viewBox="0 0 980 300" role="img" aria-label="方法論架構圖">
+          <g font-family="Noto Sans TC,system-ui" font-size="12.5">
+            <rect x="10" y="10" width="960" height="50" rx="10" fill="#102F4C"/>
+            <text x="490" y="40" text-anchor="middle" fill="#fff" font-weight="800" font-size="14">人類 Founder：洞察 · 真實證據 · 最終決策 · 負全責(AI 不列作者)</text>
+            <!-- roles -->
+            <g text-anchor="middle">
+              <rect x="40" y="80" width="270" height="54" rx="10" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="175" y="102" font-weight="800" fill="#167C77">Claude</text>
+              <text x="175" y="120" fill="#5D7589">操作化 · 整合 · 查核</text>
+              <rect x="355" y="80" width="270" height="54" rx="10" fill="#FFF0DA" stroke="#F0CF9A"/>
+              <text x="490" y="102" font-weight="800" fill="#B66B16">Codex</text>
+              <text x="490" y="120" fill="#5D7589">對抗式審查(獨立)</text>
+              <rect x="670" y="80" width="270" height="54" rx="10" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="805" y="102" font-weight="800" fill="#167C77">Gemini</text>
+              <text x="805" y="120" fill="#5D7589">形式化 · 補強 · 再審</text>
+            </g>
+            <!-- pipeline -->
+            <g text-anchor="middle" font-size="11.5">
+              <rect x="20" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#A8DCD9"/><text x="80" y="185" fill="#102F4C" font-weight="700">00 Ideas</text><text x="80" y="201" fill="#8497a8">G0</text>
+              <rect x="150" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#A8DCD9"/><text x="210" y="185" fill="#102F4C" font-weight="700">01 收斂</text><text x="210" y="201" fill="#8497a8">G1</text>
+              <rect x="280" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#A8DCD9"/><text x="340" y="185" fill="#102F4C" font-weight="700">02 草稿</text><text x="340" y="201" fill="#8497a8">G2</text>
+              <rect x="410" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#167C77" stroke-width="1.6"/><text x="470" y="185" fill="#167C77" font-weight="800">03 審查★</text><text x="470" y="201" fill="#8497a8">G3</text>
+              <rect x="540" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#A8DCD9"/><text x="600" y="185" fill="#102F4C" font-weight="700">04 證據</text><text x="600" y="201" fill="#B66B16">G4 ⛔</text>
+              <rect x="670" y="165" width="120" height="46" rx="9" fill="#fff" stroke="#A8DCD9"/><text x="730" y="185" fill="#102F4C" font-weight="700">05 盡調</text><text x="730" y="201" fill="#8497a8">G5</text>
+              <rect x="800" y="165" width="140" height="46" rx="9" fill="#FFF0DA" stroke="#F0CF9A"/><text x="870" y="185" fill="#B66B16" font-weight="800">06 發表 DOI</text><text x="870" y="201" fill="#8497a8">G6</text>
+              <g stroke="#5D7589"><line x1="140" y1="188" x2="150" y2="188"/><line x1="270" y1="188" x2="280" y2="188"/><line x1="400" y1="188" x2="410" y2="188"/><line x1="530" y1="188" x2="540" y2="188"/><line x1="660" y1="188" x2="670" y2="188"/><line x1="790" y1="188" x2="800" y2="188"/></g>
+            </g>
+            <!-- backbones -->
+            <rect x="20" y="235" width="920" height="22" rx="6" fill="#F8F6EF" stroke="#D8E8EE"/><text x="490" y="250" text-anchor="middle" fill="#5D7589">99 References 證據主幹(全程查核) · 07 Lessons 回饋 · 08 Methodology 反身描述</text>
+            <rect x="20" y="265" width="920" height="22" rx="6" fill="#DDF3F1" stroke="#A8DCD9"/><text x="490" y="280" text-anchor="middle" fill="#167C77" font-weight="700">紅線:生產者≠審查者 · AI 產出一律查原始來源 · 高風險須人核</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="fig">
+        <img src="methodology_flow.svg" alt="方法論流程圖(stage-gate + 對抗審查微迴圈)"/>
+        <div class="figcap" data-i18n="fig2">圖二 · 系統流程圖:stage-gate + 對抗審查微迴圈</div>
+      </div>
+
+      <div class="card">
+        <div id="stages"></div>
+      </div>
+    </section>
+
+    <!-- #4 A2A Agent 使用 -->
+    <section id="agent" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_agent">③ 讓你的 AI Agent 直接用我們的 A2A 指引</div>
+      <p class="page-sub" data-i18n="agent_sub">Claude Code / Codex / Gemini 都可以「撿起」這個流程自主執行——入口是 <code>AGENTS.md</code>。</p>
+      <div class="grid g3">
+        <div class="card tool"><b>Claude Code</b><p class="lead" data-i18n="t_claude" style="font-size:13.5px">指向卷宗根或 <code>08_Methodology/AGENTS.md</code>;它讀「自足操作手冊」→ 跑 §0 自我驗證 5 題 → 依 §3 迴圈執行。預設擔任 producer + 查核。</p></div>
+        <div class="card tool"><b>Codex</b><p class="lead" data-i18n="t_codex" style="font-size:13.5px">讀 <code>AGENTS.md</code> + <code>CODEX_OPERATING_GUIDE.md</code>;預設擔任<b>獨立 reviewer</b>(對抗式審查 + 原始來源查證)。沒有 A2A server 時用 Local Workspace Adapter,不得假裝呼叫成功。</p></div>
+        <div class="card tool"><b>Gemini</b><p class="lead" data-i18n="t_gemini" style="font-size:13.5px">擔任 enhancer:統計形式化、補程式、補文獻、措辭校準;產出一律回 producer 端查證,不直接定稿。</p></div>
+      </div>
+      <div class="note" data-i18n="agent_redline">🔴 紅線(任何 agent 都必須遵守):<b>MODEL_PRODUCER ≠ MODEL_REVIEWER</b> · AI 產出未經查原始來源不得標 verified · 造假一律駁回並記 Lessons · 發表/宣稱「已驗證」須人類核可 · 不外洩任何 token 或商業機密。</div>
+      <div class="fig">
+        <img src="n8n_topology.svg" alt="n8n 編排拓樸"/>
+        <div class="figcap" data-i18n="fign8n">用 n8n 把每個 A2A skill 掛成流程(State→Router→Gate→人類核可)</div>
+      </div>
+    </section>
+
+    <!-- #5 n8n 結合應用 -->
+    <section id="n8napp" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_n8n">⑤ n8n 結合應用:把流程變成跑得動的 workflow</div>
+      <p class="page-sub" data-i18n="n8n_sub">每個 A2A skill 對應一組 n8n 節點:State→Router→Gate→人類核可。我們附 9 個<b>可匯入、零金鑰可跑</b>的教學 workflow。</p>
+      <div class="card">
+        <p class="lead" data-i18n="n8n_why"><b>為什麼用 n8n:</b> stage-gate 視覺化(gate=IF 節點)、斷點續傳(狀態存 DB)、天然稽核(每節點 execution 留痕)、組合不重造(AI 呼叫/人類核可/Git 都是現成 node)。<b>模型呼叫一律走通用 OpenAI 相容端點</b>,通知節點預設 stub,全程 Docker 可帶走。</p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:6px">
+          <thead><tr style="text-align:left;color:var(--tiger-teal)"><th style="padding:6px">WF</th><th data-i18n="n8n_learn">學什麼</th><th data-i18n="n8n_net">需網路</th></tr></thead>
+          <tbody data-i18n-skip>
+            <tr><td style="padding:5px"><b>WF-1 Hello-State</b></td><td data-i18n="wf1">State Object + Router</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-2 Gate-Demo</b></td><td data-i18n="wf2">stage-gate(IF pass/fail 回 Router)</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-3 Review-Loop</b></td><td data-i18n="wf3">生產者≠審查者(平行審查→Merge+Verify)</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-4 Verify ★</b></td><td data-i18n="wf4">不盲信 AI:真打 arXiv 核驗書目</td><td>✓</td></tr>
+            <tr><td style="padding:5px"><b>WF-5 Mechanical-Gate</b></td><td data-i18n="wf5">機械閘(覆蓋率+突變雙門檻)</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-6 Human-Approval</b></td><td data-i18n="wf6">人類核可(Wait 節點)</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-7 PriorArt-Verify</b></td><td data-i18n="wf7">先前技術核驗(真打 arXiv)</td><td>✓</td></tr>
+            <tr><td style="padding:5px"><b>WF-8 Publish-Preprint</b></td><td data-i18n="wf8">發表 metadata 一致性→(sandbox)DOI</td><td>—</td></tr>
+            <tr><td style="padding:5px"><b>WF-9 Deep-Lit ★</b></td><td data-i18n="wf9">探索頂級論文(OpenAlex 多源)→DOI 驗活→全文+人核閘</td><td>✓</td></tr>
+          </tbody>
+        </table>
+        <div class="note" data-i18n="n8n_import">匯入方式:n8n →「Import from File」→ 選 <code>n8n_workflows/WF-*.json</code> → Execute → 點各節點看資料流。作業:把 WF-3 的 stub 換成真 HTTP Request(reviewer 與 producer 用不同模型)。</div>
+      </div>
+    </section>
+
+    <!-- #6 課程介紹 -->
+    <section id="course" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_course">⑥ 課程介紹:以可執行證據治理 AI 軟體開發</div>
+      <p class="page-sub" data-i18n="course_sub">8 週短課(可擴 16 週);每週講 1/3 + 動手 2/3;全程 Docker;無金鑰也能上(用 stub)。每週對應一個可匯入 n8n workflow。</p>
+      <div class="grid g2">
+        <div class="card">
+          <b data-i18n="course_clo_t">修完能力</b>
+          <ul class="lead" style="font-size:13.5px;margin:.5em 0">
+            <li data-i18n="clo1">設計帶 gate 的 Agentic 流程,防「AI 驗 AI 的自我背書」</li>
+            <li data-i18n="clo2">用 n8n 做 State→Router→Gate、對抗審查迴圈、人類核可</li>
+            <li data-i18n="clo3">把真實題目用 stage-gate 推進到預印本 DOI</li>
+            <li data-i18n="clo4">先前技術查核、引文查證、GenAI 使用揭露(誠信)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <b data-i18n="course_arc_t">八週動線</b>
+          <p class="lead" style="font-size:13px;margin:.5em 0" data-i18n="course_arc">W1 State · W2 Gate · W3 對抗審查 · W4 查證(★靈魂)· W5 機械閘 · W6 人類核可 · W7 先前技術 · W8 發表;期末 capstone 串成完整 pipeline,跑自己題目到「預印本就緒」。</p>
+          <p class="lead" style="font-size:13px" data-i18n="course_assess"><b>評量:</b>週實作 40% · 期中(對抗審查+查證)20% · capstone 30% · 學術誠信 10%。</p>
+        </div>
+      </div>
+      <div class="note" data-i18n="course_instr">講師:盧業興 Morris Lu — 虎智科技共同創辦人 · n8n Taipei Ambassador · PMP/n8n L1/MCP · ORCID 0009-0006-5373-0586。教材含:可匯入 WF×9、流程/拓樸 SVG、白皮書、課綱與一頁式簡介。</div>
+    </section>
+
+    <!-- 效益 -->
+    <section id="benefit" style="margin-top:30px">
+      <div class="section-title" data-i18n="s_benefit">④ 系統效益分析:對誰有什麼好處</div>
+      <div class="fig">
+        <!-- 圖四:系統效益分析 (SVG) -->
+        <svg viewBox="0 0 980 230" role="img" aria-label="效益分析圖">
+          <g font-family="Noto Sans TC,system-ui" font-size="12.5" text-anchor="middle">
+            <g><rect x="15" y="20" width="180" height="90" rx="12" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="105" y="46" font-weight="800" fill="#167C77">第一次寫論文者</text><text x="105" y="70" fill="#5D7589">有 SOP 可照走</text><text x="105" y="90" fill="#5D7589">不會自信出錯</text></g>
+            <g><rect x="210" y="20" width="180" height="90" rx="12" fill="#FFF0DA" stroke="#F0CF9A"/>
+              <text x="300" y="46" font-weight="800" fill="#B66B16">研究團隊</text><text x="300" y="70" fill="#5D7589">可稽核、可重現</text><text x="300" y="90" fill="#5D7589">過度宣稱被擋</text></g>
+            <g><rect x="405" y="20" width="180" height="90" rx="12" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="495" y="46" font-weight="800" fill="#167C77">授課老師</text><text x="495" y="70" fill="#5D7589">現成課綱+教材</text><text x="495" y="90" fill="#5D7589">9 個可匯入 WF</text></g>
+            <g><rect x="600" y="20" width="180" height="90" rx="12" fill="#FFF0DA" stroke="#F0CF9A"/>
+              <text x="690" y="46" font-weight="800" fill="#B66B16">AI Agent</text><text x="690" y="70" fill="#5D7589">A2A 可自主接手</text><text x="690" y="90" fill="#5D7589">紅線綁住不亂來</text></g>
+            <g><rect x="795" y="20" width="170" height="90" rx="12" fill="#DDF3F1" stroke="#A8DCD9"/>
+              <text x="880" y="46" font-weight="800" fill="#167C77">機構/誠信</text><text x="880" y="70" fill="#5D7589">GenAI 揭露</text><text x="880" y="90" fill="#5D7589">引文可追溯</text></g>
+            <rect x="15" y="135" width="950" height="74" rx="12" fill="#102F4C"/>
+            <text x="490" y="165" fill="#fff" font-weight="800" font-size="14">核心效益:把「多 AI 對抗 + 人類查證 + 過關才往下」變成看得見、跑得動、留得下痕跡的紀律</text>
+            <text x="490" y="190" fill="#DDF3F1">= 不會「很有自信地發表一篇錯的論文」 · 可教、可重複、可被下一個 AI 接手</text>
+          </g>
+        </svg>
+        <div class="figcap" data-i18n="fig4">圖四 · 系統效益分析</div>
+      </div>
+    </section>
+
+    <!-- academic footer (學術出處 + ORCID) -->
+    <footer id="aleCredit" data-i18n="credit" style="margin-top:36px;padding:16px 18px;border-top:1px solid var(--tiger-border);font-size:12.5px;color:var(--tiger-muted);line-height:1.9;text-align:left">
+      作者 Author:<b>盧業興 Morris Lu(Yeh-Hsing Lu)</b> · 虎智科技 Tiger AI Tech Co., Ltd. 共同創辦人 · n8n Taipei Ambassador · <a href="https://orcid.org/0009-0006-5373-0586" target="_blank" rel="noopener" style="color:var(--tiger-teal);text-decoration:none">ORCID 0009-0006-5373-0586</a><br>
+      本互動站為工作論文 <b>《Governing Agentic Software Development with Executable Evidence》</b>(Agentic Loop Engineering, ALE)之附屬說明 · 產製:TigerAI 虎智科技 · 授權 CC BY 4.0
+    </footer>
+
+  </main>
+</div>
+
+<!-- floating help -->
+<button id="helpFab" title="說明">?</button>
+<aside id="help" aria-live="polite">
+  <div class="hh"><span>🛟 <span data-i18n="help_title">說明視窗</span></span><button class="x" id="helpMin" title="收合">—</button></div>
+  <div class="hb">
+    <div class="t" id="helpT" data-i18n="help_def_t">點任一概念或階段</div>
+    <div id="helpFunc"><b>🔧</b> <span data-i18n="help_def_f">看「執行重點」</span></div>
+    <div id="helpScn" style="margin-top:6px"><b>🎯</b> <span data-i18n="help_def_s">看「使用情境」</span></div>
+  </div>
+</aside>
+
+<script>
+/* ===== content data (bilingual) ===== */
+var STAGES = [
+ {no:"00", gate:"G0", key:"s00", zh:["Ideas 點子","從真實踩坑盤點研究種子(發票案 4.5x 膨脹)。","🔧 執行重點:寫下真實痛點與開放問題,別憑空想題目。","🎯 情境:你做完一個專案,把『一再出現的痛點』記下來。"],
+  en:["Ideas","Seed the problem from a real pitfall.","Focus: write down real pain & open questions.","When: right after a project, log the recurring pain."]},
+ {no:"01", gate:"G1", key:"s01", zh:["Consolidation 收斂","外部研究後收斂主題、可辯護新穎性;讓出公共財。","🔧 執行重點:查 prior art 讀『正文』非摘要;先假設別人做過。","🎯 情境:你想宣稱原創前,先確認別人沒做過、定位成『整合』。"],
+  en:["Consolidation","Converge topic & defensible novelty.","Focus: read full prior art; assume others did it.","When: before any originality claim."]},
+ {no:"02", gate:"G2", key:"s02", zh:["Draft 草稿","Claude 操作化成稿;每條主張標證據等級。","🔧 執行重點:章節完整 + 每個 claim 標 [假說]/[初步]/[已驗證]。","🎯 情境:把想法寫成自洽初稿,先別宣稱『已驗證』。"],
+  en:["Draft","Operationalize into a draft; tag every claim.","Focus: complete sections + evidence level per claim.","When: turn ideas into a self-consistent draft."]},
+ {no:"03", gate:"G3", key:"s03", zh:["Review 對抗審查 ★","Codex+Gemini 獨立審 → 讀原文/跑程式查證 → 改。","🔧 執行重點:生產者≠審查者;AI 指出的問題一律查原始來源;造假駁回。","🎯 情境:這關抓到 3 個錯(含 AI 編造的假日誌)——整套的靈魂。"],
+  en:["Review (adversarial) ★","Independent review → verify against source → fix.","Focus: producer≠reviewer; verify every finding; reject fabrication.","When: this caught 3 real errors incl. a fabricated log."]},
+ {no:"04", gate:"G4", key:"s04", zh:["Evidence 證據","案例 + 受控實驗;把假說升為已驗證。","🔧 執行重點:沒有實測數據不得宣稱『有效』(G4 可阻塞)。","🎯 情境:第二案資料還沒到 → G4 卡住 → 只走預印本子路徑。"],
+  en:["Evidence","Case + controlled experiment.","Focus: no measured data, no 'works' claim (G4 may block).","When: 2nd-case data pending → take the preprint sub-path."]},
+ {no:"05", gate:"G5", key:"s05", zh:["Due Diligence 盡調","prior-art 窮盡、原創性、引文核驗。","🔧 執行重點:每筆引用查證(真打 arXiv);零 placeholder。","🎯 情境:投稿前把『撞名/漏 prior art』類風險清乾淨。"],
+  en:["Due Diligence","Exhaustive prior-art, originality, citation check.","Focus: verify every citation (query arXiv); zero placeholders.","When: clean naming/prior-art risks before submission."]},
+ {no:"06", gate:"G6", key:"s06", zh:["Publication 發表","選 venue、取 DOI、備齊 metadata。","🔧 執行重點:用 ORCID 登入 Zenodo 再 deposit;高風險須人核。","🎯 情境:先發預印本鎖優先權,正式論文等 G4 過。"],
+  en:["Publication","Pick venue, get DOI, align metadata.","Focus: log into Zenodo via ORCID; human approval.","When: preprint first to lock priority; formal paper after G4."]}
+];
+var CONCEPTS = {
+ producer:{zh:["原則","生產者 ≠ 審查者","🔧 寫稿與審稿用不同 AI 實例,避免自我背書。","🎯 Claude 寫、Codex 審——不能同一個。"],en:["Principle","Producer ≠ Reviewer","Use different AI instances for write vs review.","Claude writes, Codex reviews — never the same."]},
+ evidence:{zh:["原則","證據 > 共識","🔧 AI 的輸出一律當『待查證線索』,讀 PDF/跑程式/查 arXiv 才採信。","🎯 我們就靠這條,抓到把文獻講反的錯。"],en:["Principle","Evidence > Consensus","Treat AI output as a lead; verify against the source.","This caught a reversed-conclusion citation error."]},
+ gate:{zh:["原則","過關才往下","🔧 每階段一個機器可判定的 gate;沒過不准前進。","🎯 沒有實測證據,就不准宣稱『有效』。"],en:["Principle","No gate, no proceed","Each stage has a machine-checkable gate.","No measured evidence → no 'works' claim."]},
+ human:{zh:["原則","人類負最終責任","🔧 發表、取 DOI、宣稱『已驗證』須人類核可;AI 不列作者。","🎯 你查證引文、你負責,AI 是工具。"],en:["Principle","Human accountable","Human approval for publish / 'validated'; AI not an author.","You verify citations and own it."]}
+};
+
+/* ===== i18n (chrome) ===== */
+var I18N={zh:{},en:{
+ eyebrow:"Methodology · ALE paper as the case",
+ h1:"Write your first journal paper — with 3×AI",
+ lead:"Not 'let AI generate a paper', but <b>multiple AIs cross-checking + human verification + no gate, no proceed</b> — driving a real topic to something <b>publishable, auditable, and not confidently wrong</b>. This page walks through our real ALE-paper process.",
+ s_story:"① Scenario: a first-time AI-assisted author",
+ story_sub:"Protagonist: a CS engineer. From an experiment — 'can AI build a dashboard?' — to the ALE methodology, and finally writing this paper with the same loop.",
+ story_1:"<b>Act 1 · An experiment: can AI build a whole dashboard?</b> I'm in CS. I wanted to test one thing — <b>let AI build an entire dashboard step by step</b>. Using the open e-invoice dataset, I had AI do it end to end: fetch, aggregate, chart, deploy.",
+ story_2:"<b>Act 2 · From 'do it once' to 'let AI do it repeatedly' (loop engineering).</b> Once it worked, I thought: this shouldn't be one-off. It should become a <b>repeatable loop where AI produces it round after round</b> — that was the original idea: engineer it into a loop we call Agentic Loop Engineering (ALE).",
+ story_3:"<b>Act 3 · To repeat, you must govern.</b> For AI to do it repeatedly and reliably, every round must be trustworthy. Along the way I hit a trap: verifying dashboard against DB, both said 'correct' — yet both ate the same 4.5×-inflated data, <b>wrong together, endorsing each other</b>. That forced the core question: <b>when the AI verifying is also an AI, it self-endorses</b>. Hence ALE's governance: mechanical gates, three-layer verification, skill capitalization.",
+ story_4:"<b>Act 4 · Even writing this paper used the same loop.</b> ALE applied to writing the ALE paper: Claude writes, Codex adversarially reviews, Gemini formalizes — and I <b>trust no AI blindly</b>: read the PDFs, run the code. Three errors caught before publishing (incl. a fabricated log); formal paper pending 2nd-case data, preprint released honestly first.",
+ fig3:"Fig.3 · Scenario story flow (real ALE process)",
+ s_proc:"② The AI-assisted writing process: stages & gates",
+ proc_sub:"Each stage has a gate; no pass, no proceed. Click a stage card — the help panel shows its execution focus & when-to-use.",
+ fig1:"Fig.1 · Architecture (roles × stage-gate × evidence backbone)",
+ fig2:"Fig.2 · Process: stage-gate + adversarial-review micro-loop",
+ s_agent:"③ Let your AI agent use our A2A guide directly",
+ agent_sub:"Claude Code / Codex / Gemini can pick up this pipeline autonomously — entry: AGENTS.md.",
+ t_claude:"Point it at the dossier root or 08_Methodology/AGENTS.md; it reads the self-contained manual → runs the §0 5-question self-check → executes the §3 loop. Default: producer + verifier.",
+ t_codex:"Reads AGENTS.md + CODEX_OPERATING_GUIDE.md; default role is independent reviewer (adversarial review + primary-source verification). Without an A2A server, use the Local Workspace Adapter — never fake success.",
+ t_gemini:"Acts as enhancer: statistical formalization, code, citations, copy-editing; output goes back to the producer for verification, never finalizes directly.",
+ agent_redline:"🔴 Red lines (all agents): MODEL_PRODUCER ≠ MODEL_REVIEWER · no 'verified' without source check · reject fabrication & log it · human approval before publish/'validated' · never leak tokens or trade secrets.",
+ fign8n:"Wire each A2A skill into n8n (State→Router→Gate→human approval)",
+ s_benefit:"④ Benefit analysis: who gains what",
+ fig4:"Fig.4 · Benefit analysis",
+ help_title:"Help", help_def_t:"Click any concept or stage", help_def_f:"see 'execution focus'", help_def_s:"see 'when to use'",
+ s_n8n:"⑤ n8n integration: turn the process into a runnable workflow",
+ n8n_sub:"Each A2A skill maps to an n8n node group: State→Router→Gate→human approval. We ship 9 importable, zero-key workflows.",
+ n8n_why:"<b>Why n8n:</b> visual stage-gates (gate=IF node), resumable (state in DB), built-in audit (every node execution is logged), compose don't rebuild (LLM call / human approval / Git are ready-made nodes). Model calls go through a generic OpenAI-compatible endpoint; notification nodes are stubs by default; fully Dockerized & portable.",
+ n8n_learn:"What you learn", n8n_net:"Internet",
+ wf1:"State Object + Router", wf2:"stage-gate (IF pass/fail back to Router)", wf3:"producer≠reviewer (parallel review→Merge+Verify)",
+ wf4:"do not trust AI: really query arXiv to verify citations", wf5:"mechanical gate (coverage + mutation thresholds)",
+ wf6:"human approval (Wait node)", wf7:"prior-art verification (really queries arXiv)", wf8:"publish metadata consistency → (sandbox) DOI",
+ wf9:"discover top-tier papers (OpenAlex multi-source) → live DOI check → full-text + human gate",
+ n8n_import:"Import: n8n → 'Import from File' → pick n8n_workflows/WF-*.json → Execute → inspect each node. Exercise: replace WF-3 stubs with real HTTP Request (reviewer and producer on different models).",
+ s_course:"⑥ Course: Governing AI software development with executable evidence",
+ course_sub:"8-week short course (extendable to 16); 1/3 lecture + 2/3 hands-on; fully Docker; runs even without API keys (stubs). Each week maps to an importable n8n workflow.",
+ course_clo_t:"Learning outcomes",
+ clo1:"Design gated agentic flows; prevent 'AI verifying AI' self-endorsement",
+ clo2:"Build State→Router→Gate, adversarial-review loop, human approval in n8n",
+ clo3:"Drive a real topic via stage-gates to a preprint DOI",
+ clo4:"Prior-art check, citation verification, GenAI use disclosure (integrity)",
+ course_arc_t:"8-week arc",
+ course_arc:"W1 State · W2 Gate · W3 adversarial review · W4 Verify (★soul) · W5 mechanical gate · W6 human approval · W7 prior-art · W8 publish; capstone: chain into a full pipeline, drive your own topic to 'preprint-ready'.",
+ course_assess:"<b>Assessment:</b> weekly labs 40% · midterm (review+verify) 20% · capstone 30% · academic integrity 10%.",
+ course_instr:"Instructor: Yeh-Hsing Lu (Morris) — Co-founder, Tiger AI Tech · n8n Taipei Ambassador · PMP/n8n L1/MCP · ORCID 0009-0006-5373-0586. Materials: 9 importable WFs, flow/topology SVGs, white paper, syllabus & one-pager.",
+ credit:"Author: <b>Yeh-Hsing Lu (Morris)</b> · Co-founder, Tiger AI Tech Co., Ltd. · n8n Taipei Ambassador · <a href=\"https://orcid.org/0009-0006-5373-0586\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--tiger-teal);text-decoration:none\">ORCID 0009-0006-5373-0586</a><br>Companion guide to the working paper <b>\"Governing Agentic Software Development with Executable Evidence\"</b> (Agentic Loop Engineering, ALE) · Built by TigerAI · CC BY 4.0"
+}};
+
+/* ===== shell (header + sidebar + author/help cards) ===== */
+var NAV=[{k:"intro",ic:"🏠",zh:"開始",en:"Start"},{k:"story",ic:"📖",zh:"情境故事",en:"Story"},
+ {k:"process",ic:"🧭",zh:"流程與 Gate",en:"Stages & Gates"},{k:"agent",ic:"🤖",zh:"Agent 使用",en:"Agent (A2A)"},
+ {k:"n8napp",ic:"🔧",zh:"n8n 應用",en:"n8n"},{k:"course",ic:"🎓",zh:"課程介紹",en:"Course"},
+ {k:"benefit",ic:"📈",zh:"效益",en:"Benefits"}];
+var LANG=(location.hash==="#en")?"en":((function(){try{return localStorage.getItem("ale_lang")||"zh"}catch(e){return"zh"}})());
+function t(k){return (LANG==="en"&&I18N.en[k]!=null)?I18N.en[k]:(I18N.zh[k]!=null?I18N.zh[k]:document.querySelector('[data-i18n="'+k+'"]')?null:null);}
+function buildHeader(){
+ var mq=(LANG==="en")
+  ? 'TigerAI (Tiger AI Tech) — an NTUST-incubated startup researching frontier AI for enterprise; the sole official n8n technical partner in Taiwan. This interactive guide is a companion artifact of the ALE working paper. Contact: tiger.ai.tw@gmail.com'
+  : 'TigerAI 虎智科技——臺科大育成新創,研究 AI 在企業場景的前沿技術;亦為 n8n 臺灣官方技術夥伴。本互動說明為 ALE 白皮書的附屬作品。聯絡:tiger.ai.tw@gmail.com';
+ document.getElementById("tigerHeader").innerHTML=
+  '<header class="header"><button class="ham" id="ham" title="'+(LANG==="en"?"Collapse / expand menu":"收合 / 展開選單")+'">☰</button>'+
+  '<a class="logolink" href="https://www.tigerai.info/" target="_blank" rel="noopener" title="TigerAI 官網 · tigerai.info" style="display:inline-flex;align-items:center;flex:none"><img class="logo" src="vendor/tigerai_logo.png" alt="TigerAI 虎智科技 · tigerai.info"/></a>'+
+  '<div class="titlechip"><b>'+(LANG==="en"?"3×AI Paper Methodology":"3×AI 論文方法論")+'</b><small>'+(LANG==="en"?"ALE paper as the worked case":"以 ALE 論文發表為案例")+'</small></div>'+
+  '<div class="marquee" aria-hidden="true"><span class="mq">'+mq+'</span></div>'+
+  '<div class="pills"><span class="pill ok"><span class="dot"></span>Working Paper v3.2</span>'+
+  '<div class="langtoggle"><button data-l="zh" class="'+(LANG==="zh"?"active":"")+'">中文</button><button data-l="en" class="'+(LANG==="en"?"active":"")+'">EN</button></div></div></header>';
+}
+function buildSidebar(){
+ var cur=document.querySelector("section:target")?location.hash.slice(1):"intro";
+ var author='<div class="helpcard" style="margin-top:14px"><b>'+(LANG==="en"?"Author":"作者")+'</b>'+
+  '<p>盧業興 Morris Lu<br>'+(LANG==="en"?"Co-founder, Tiger AI Tech":"虎智科技共同創辦人")+'<br>n8n Taipei Ambassador</p>'+
+  '<div style="display:flex;gap:11px;margin-top:9px;align-items:center">'+
+  '<a href="https://www.facebook.com/groups/n8ngroups" target="_blank" rel="noopener" title="n8n Taipei (Facebook 社團)" aria-label="n8n Taipei group" style="display:inline-flex;align-items:center"><img src="vendor/n8n_logo.svg" alt="n8n" style="height:14px;display:block"/></a>'+
+  '<a href="https://www.facebook.com/yesinlu" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook" style="color:#1877F2;display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.78-3.9 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.44 2.9h-2.34v7.03C18.34 21.24 22 17.08 22 12.06z"/></svg></a>'+
+  '<a href="https://www.linkedin.com/in/morris-lu-89144821/" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn" style="color:#0A66C2;display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S.02 4.88.02 3.5 1.13 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v13H.22V8zm7.5 0h4.37v1.78h.06c.61-1.15 2.1-2.37 4.32-2.37 4.62 0 5.47 3.04 5.47 7V21h-4.56v-6.16c0-1.47-.03-3.36-2.05-3.36-2.05 0-2.37 1.6-2.37 3.25V21H7.72V8z"/></svg></a>'+
+  '<a href="mailto:morrislu@tigerai.tw" title="morrislu@tigerai.tw" aria-label="Email" style="color:#167C77;display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2 4h20a1 1 0 011 1v14a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1zm10 7.2L3.3 6H20.7L12 11.2zM3 7.5V18h18V7.5l-9 5.9-9-5.9z"/></svg></a></div></div>';
+ var about='<div class="helpcard" style="margin-top:10px"><b>'+(LANG==="en"?"About":"關於")+'</b><p>'+(LANG==="en"?"Companion of the ALE working paper. Open locally or via GitHub Pages.":"ALE 論文方法論說明。可本機開啟或 GitHub Pages。")+'</p></div>';
+ document.getElementById("tigerSidebar").innerHTML=
+  '<div class="side-label">'+(LANG==="en"?"MENU":"功能選單")+'</div>'+
+  NAV.map(function(n){return '<a class="navitem '+(n.k===cur?"active":"")+'" href="#'+n.k+'"><span class="ic">'+n.ic+'</span><span class="navtext">'+(LANG==="en"?n.en:n.zh)+'</span></a>';}).join("")+
+  author+about;
+}
+function renderStages(){
+ document.getElementById("stages").innerHTML=STAGES.map(function(s){var d=LANG==="en"?s.en:s.zh;
+  return '<div class="stage" data-key="'+s.key+'"><div class="no">'+s.no+'</div><div style="flex:1"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h4>'+d[0]+'</h4><span class="gate">'+s.gate+'</span></div><p>'+d[1]+'</p></div></div>';
+ }).join("");
+}
+function applyI18n(){
+ document.querySelectorAll("[data-i18n]").forEach(function(el){var k=el.getAttribute("data-i18n");var v=(LANG==="en")?I18N.en[k]:null;if(LANG==="en"&&v!=null)el.innerHTML=v;else if(LANG==="zh"&&el.dataset.zh)el.innerHTML=el.dataset.zh;});
+ document.documentElement.lang=(LANG==="en")?"en":"zh-Hant";
+}
+/* snapshot zh originals once */
+document.querySelectorAll("[data-i18n]").forEach(function(el){el.dataset.zh=el.innerHTML;});
+function setLang(l){LANG=l;try{localStorage.setItem("ale_lang",l)}catch(e){}; if(l==="en")history.replaceState(null,"","#en");
+ buildHeader();buildSidebar();renderStages();applyI18n();wire();}
+function wire(){
+ var ham=document.getElementById("ham");if(ham)ham.onclick=function(){var sh=document.getElementById("tigerShell");var c=!sh.classList.contains("collapsed");sh.classList.toggle("collapsed",c);try{localStorage.setItem("tigerCollapsed",c?"1":"0")}catch(e){}};
+ document.querySelectorAll("#tigerHeader .langtoggle button").forEach(function(b){b.onclick=function(){setLang(this.getAttribute("data-l"));};});
+ document.querySelectorAll("[data-key]").forEach(function(el){el.style.cursor="pointer";el.onclick=function(){showHelp(this.getAttribute("data-key"));};});
+}
+/* help panel */
+function showHelp(key){var d=(STAGES.find(function(s){return s.key===key;})||CONCEPTS[key]); if(!d)return; var a=d.zh?(LANG==="en"?d.en:d.zh):null; if(!a)return;
+ document.getElementById("help").hidden=false;document.getElementById("helpFab").style.display="none";document.getElementById("help").classList.remove("min");
+ document.getElementById("helpT").textContent=a[0]+" · "+a[1];
+ document.getElementById("helpFunc").innerHTML=a[2]||"";
+ document.getElementById("helpScn").innerHTML=a[3]||"";
+}
+(function initHelp(){
+ var h=document.getElementById("help"),fab=document.getElementById("helpFab");
+ document.getElementById("helpMin").onclick=function(){h.hidden=true;fab.style.display="block";};
+ fab.onclick=function(){h.hidden=false;fab.style.display="none";};
+ // drag
+ var hh=h.querySelector(".hh"),dx=0,dy=0,dragging=false;
+ hh.addEventListener("mousedown",function(e){dragging=true;dx=e.clientX-h.offsetLeft;dy=e.clientY-h.offsetTop;h.style.right="auto";h.style.bottom="auto";});
+ document.addEventListener("mousemove",function(e){if(!dragging)return;h.style.left=(e.clientX-dx)+"px";h.style.top=(e.clientY-dy)+"px";});
+ document.addEventListener("mouseup",function(){dragging=false;});
+})();
+function isMobile(){try{return window.matchMedia&&window.matchMedia("(max-width:860px)").matches;}catch(e){return false;}}
+window.addEventListener("hashchange",function(){buildSidebar();wire();
+ if(isMobile())document.getElementById("tigerShell").classList.add("collapsed"); /* 手機:點導覽後收起抽屜 */});
+buildHeader();buildSidebar();renderStages();applyI18n();wire();
+try{var col=localStorage.getItem("tigerCollapsed")==="1"; if(isMobile())col=true; /* 手機抽屜預設收起,不蓋內容 */
+ if(col)document.getElementById("tigerShell").classList.add("collapsed");}catch(e){}
+</script>
+</body>
+</html>

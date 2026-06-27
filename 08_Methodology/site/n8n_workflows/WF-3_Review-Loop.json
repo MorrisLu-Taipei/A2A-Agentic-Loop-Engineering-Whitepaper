@@ -1,0 +1,125 @@
+{
+  "name": "WF-3 Review-Loop",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{draft:'draft text'}}];"
+      },
+      "id": "n2",
+      "name": "Draft vN",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:Object.assign({},$json,{findings_R:['overclaim in section 1']})}];"
+      },
+      "id": "n3",
+      "name": "Reviewer stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:Object.assign({},$json,{findings_E:['missing citation']})}];"
+      },
+      "id": "n4",
+      "name": "Enhancer stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const R=$node['Reviewer stub'].json.findings_R||[];const E=$node['Enhancer stub'].json.findings_E||[];const all=R.concat(E).map(f=>({claim:f,verified:true}));return [{json:{findings:all,open_findings:all.filter(x=>!x.verified).length}}];"
+      },
+      "id": "n5",
+      "name": "Merge+Verify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Draft vN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft vN": {
+      "main": [
+        [
+          {
+            "node": "Reviewer stub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enhancer stub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer stub": {
+      "main": [
+        [
+          {
+            "node": "Merge+Verify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhancer stub": {
+      "main": [
+        [
+          {
+            "node": "Merge+Verify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "producer != reviewer: parallel review then Merge+Verify. Swap stubs for HTTP."
+  }
+}

@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: >-
+  Governing Agentic Software Development with Executable Evidence:
+  Mechanical Gates, Human Review, and Skill Capitalization
+type: report
+authors:
+  - family-names: Lu
+    given-names: Yeh-Hsing
+    affiliation: "Tiger AI Tech Co., Ltd., Taiwan"
+    orcid: "https://orcid.org/0009-0006-5373-0586"
+version: "3.2"
+date-released: "2026-06-22"
+license: CC-BY-4.0
+keywords:
+  - Agentic AI
+  - software development life cycle
+  - multi-agent systems
+  - LLM code generation
+  - verifiability
+  - shared-context false pass
+  - mechanical gate
+  - skill capitalization
+  - DevSecOps
+  - data sovereignty
+abstract: >-
+  An evidence-governed lifecycle for agentic software development, which we
+  operationalize as Agentic Loop Engineering (ALE) — a term also used in prior
+  agentic-SWE work (arXiv:2509.06216); our contribution is the integration, not
+  the term. ALE maps the full software development life cycle onto a governable,
+  auditable multi-agent pipeline. It studies a "shared-context false pass" — a
+  correlated false-pass failure mode that may arise when the AI that verifies is
+  also an AI sharing the producer's source or bias — and hypothesizes that
+  multi-model cross-checking reduces variance but, under shared bias, may not
+  remove systematic bias (a research hypothesis pending EXP-001). It proposes a
+  three-layer verification architecture (mechanical gate / model panel / human
+  review of evidence) and a Skill-Capitalization loop that turns each delivered
+  project into a reusable, verifiable Skill. This is a working paper; core claims
+  are labelled as research hypotheses pending EXP-001 / EXP-002 (no validated
+  findings yet).
+# 註:title/副標待 Founder 最終拍板;Zenodo DOI 於上傳後由系統指派,回填於下:
+# identifiers:
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXX"

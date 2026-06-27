@@ -1,0 +1,10 @@
+# EXP-001 — docker compose:容器內跑實驗,可帶上任何只有 Docker 的主機
+services:
+  runner:
+    build: ./build
+    env_file: .env          # 模型端點(通用 OpenAI 相容);不入 git
+    working_dir: /exp
+    volumes:
+      - ./:/exp
+    # 預設執行實驗;analyze 另外跑
+    command: ["runner/run_experiment.py", "--tasks", "tasks", "--runs", "3", "--conditions", "A,C,D,E"]

@@ -1,0 +1,20 @@
+flowchart LR
+  T["Trigger 帶 research_id"] --> ST[("Postgres: State Object")]
+  ST --> RT["ALE Router (Code)<br/>讀 gate_status 算 next_skill"]
+  RT --> GEN["Produce 子流程<br/>HTTP→producer"]
+  RT --> LOOP["Review Loop 子流程 ★"]
+  RT --> EVI["Evidence 子流程"]
+  RT --> DD["Due Diligence 子流程"]
+  RT --> PUB["Publish/DOI 子流程"]
+  GEN --> GATE{"Gate IF 過關?"}
+  LOOP --> GATE
+  EVI --> GATE
+  DD --> GATE
+  PUB --> GATE
+  GATE -->|pass| UPD["Update State"]
+  GATE -->|fail| BACK["route_to_prev + context"]
+  GATE -->|high-risk| HUMAN["Human Approval (Wait)"]
+  BACK --> RT
+  UPD --> RT
+  HUMAN --> UPD
+  UPD --> EVD[("Append-only Evidence + Git hash")]

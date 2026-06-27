@@ -1,0 +1,7 @@
+flowchart TD
+  A[Artifact 進入 Gate] --> L1{Layer 1<br/>機械閘}
+  L1 -- FAIL --> PG[route to PG + context]
+  L1 -- PASS --> L2{Layer 2<br/>模型評議 panel<br/>盲評 · 僅高風險關卡}
+  L2 -- 分歧 --> POL[依政策重跑或升級人類]
+  L2 -- 一致 PASS --> L3[Layer 3<br/>人類審機械證據]
+  L3 --> OUT[進入下一階段]

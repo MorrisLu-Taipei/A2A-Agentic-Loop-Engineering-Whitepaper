@@ -1,0 +1,13 @@
+flowchart LR
+  subgraph RT[執行期 · 高頻易變狀態]
+    A[Agents] -->|讀寫 current_stage / retry_count| DB[(PostgreSQL / Redis<br/>單一寫入者語意)]
+  end
+  subgraph BND[階段邊界 · Gate PASS 時快照]
+    DB -->|snapshot + SHA-256| HZ[Hash 計算]
+    A -->|大型報告/掃描結果| OS[(Object Store<br/>content-addressed)]
+    OS -->|物件 hash| HZ
+  end
+  subgraph EV[稽核期 · 唯讀證據主幹]
+    HZ -->|僅寫 hash + 指標| GIT[(Git Evidence Repo<br/>append-only · hash chain)]
+  end
+  GIT -.->|可重現稽核| AUD[Auditor / 監管]

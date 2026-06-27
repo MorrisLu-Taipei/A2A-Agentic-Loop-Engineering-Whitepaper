@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="從電子發票儀表板實驗，到可查證、可重複的 AI 工作治理方法：ALE 四幕故事。">
+  <title>ALE 四幕故事｜AI 做得出來，不代表做得對</title>
+  <link rel="icon" type="image/png" href="vendor/tigerai_logo.png">
+  <style>
+    :root {
+      --navy:#102F4C;
+      --navy-2:#173E59;
+      --teal:#167C77;
+      --teal-pale:#DDF3F1;
+      --teal-line:#A8DCD9;
+      --orange:#EE9E39;
+      --orange-dark:#B66B16;
+      --orange-pale:#FFF0DA;
+      --muted:#5D7589;
+      --border:#D8E8EE;
+      --warm:#F8F6EF;
+      --cool:#F9FCFF;
+      --white:#fff;
+      --danger:#A74545;
+      --danger-pale:#FFF0F0;
+      --shadow:0 14px 40px rgba(31,71,92,.08);
+      --radius:20px;
+      --max:1160px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--navy);
+      font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%,#DFF4F2 0,transparent 27%),
+        radial-gradient(circle at 92% 14%,#FFF0D9 0,transparent 28%),
+        linear-gradient(135deg,var(--cool),var(--warm));
+      line-height:1.75;
+    }
+    a{color:inherit}
+    button,a{touch-action:manipulation}
+    :focus-visible{outline:3px solid rgba(238,158,57,.55);outline-offset:3px}
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      background:rgba(255,255,255,.92);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(14px);
+    }
+    .topbar-inner{
+      width:min(var(--max),calc(100% - 36px));
+      min-height:72px;margin:auto;
+      display:flex;align-items:center;gap:20px;
+    }
+    .logo{width:146px;height:auto;display:block}
+    .top-title{display:flex;flex-direction:column;line-height:1.25}
+    .top-title strong{font-size:15px}
+    .top-title span{font-size:12px;color:var(--muted)}
+    .top-actions{margin-left:auto;display:flex;align-items:center;gap:9px}
+    .version{
+      padding:5px 10px;border-radius:999px;
+      background:var(--teal-pale);color:var(--teal);
+      border:1px solid var(--teal-line);font-size:12px;font-weight:800;
+    }
+    .lang{
+      min-width:48px;min-height:44px;border:1px solid var(--teal-line);
+      border-radius:10px;background:var(--teal-pale);color:var(--teal);
+      font-weight:900;cursor:pointer;
+    }
+    .progress{height:3px;background:linear-gradient(90deg,var(--teal),var(--orange));transform-origin:left;transform:scaleX(0)}
+    main{overflow:hidden}
+    .wrap{width:min(var(--max),calc(100% - 36px));margin:auto}
+    .hero{
+      min-height:calc(100vh - 75px);
+      display:grid;grid-template-columns:1.12fr .88fr;gap:56px;
+      align-items:center;padding:74px 0 70px;
+    }
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      color:var(--teal);font-size:13px;font-weight:900;letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .eyebrow::before{content:"";width:28px;height:3px;border-radius:3px;background:var(--teal)}
+    h1{font-size:clamp(40px,5.5vw,72px);line-height:1.12;letter-spacing:-.035em;margin:.22em 0}
+    h1 .accent{color:var(--orange-dark)}
+    .hero-lead{font-size:clamp(18px,2vw,22px);line-height:1.75;color:var(--muted);max-width:720px}
+    .hero-lead strong{color:var(--navy)}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+    .btn{
+      min-height:48px;padding:11px 20px;border-radius:11px;border:0;
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;
+      text-decoration:none;font-weight:900;font-size:16px;cursor:pointer;
+    }
+    .btn-primary{background:linear-gradient(135deg,var(--orange),#D98220);color:white;box-shadow:0 10px 22px rgba(182,107,22,.2)}
+    .btn-secondary{background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-line)}
+    .hero-note{margin-top:20px;font-size:13px;color:var(--muted)}
+    .hero-visual{
+      position:relative;background:rgba(255,255,255,.94);
+      border:1px solid var(--border);border-radius:28px;
+      box-shadow:0 24px 70px rgba(31,71,92,.13);padding:30px;
+    }
+    .data-label{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.08em}
+    .fake-chart{height:180px;display:flex;align-items:flex-end;gap:12px;padding-top:24px;border-bottom:2px solid var(--border)}
+    .bar{flex:1;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#63B8B1,var(--teal));position:relative}
+    .bar:nth-child(1){height:42%}.bar:nth-child(2){height:64%}.bar:nth-child(3){height:52%}.bar:nth-child(4){height:88%}.bar:nth-child(5){height:72%}
+    .check-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+    .check{
+      border:1px solid var(--teal-line);background:var(--teal-pale);
+      border-radius:13px;padding:13px;color:var(--teal);font-size:13px;font-weight:900;
+    }
+    .check span{display:block;color:var(--muted);font-weight:600;font-size:12px;margin-top:2px}
+    .error-badge{
+      position:absolute;right:-24px;bottom:42px;transform:rotate(-3deg);
+      background:var(--danger-pale);border:2px solid #E8B8B8;color:var(--danger);
+      border-radius:14px;padding:12px 16px;box-shadow:var(--shadow);font-weight:900;
+    }
+    .error-badge b{font-size:27px;display:block;line-height:1}
+    .section{padding:92px 0}
+    .section-kicker{color:var(--teal);font-size:13px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+    h2{font-size:clamp(30px,4vw,48px);line-height:1.25;letter-spacing:-.025em;margin:.18em 0}
+    .section-lead{font-size:18px;color:var(--muted);max-width:760px;margin:8px 0 35px}
+    .truth{
+      background:var(--navy);color:white;border-radius:28px;padding:46px;
+      display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center;
+      box-shadow:0 22px 60px rgba(16,47,76,.18);
+    }
+    .truth-number{font-size:clamp(72px,12vw,148px);font-weight:950;color:#FFD49B;line-height:.85;letter-spacing:-.06em}
+    .truth small{display:block;color:#CBE6E4;font-weight:800;margin-top:15px}
+    .truth h2{color:white;margin-top:0}
+    .truth p{color:#D7E4EC;font-size:18px;margin-bottom:0}
+    .acts{display:grid;gap:22px;margin-top:38px}
+    .act{
+      display:grid;grid-template-columns:118px 1fr 210px;gap:28px;align-items:center;
+      background:rgba(255,255,255,.94);border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 30px;
+    }
+    .act-no{font-size:13px;font-weight:900;color:var(--teal);letter-spacing:.08em}
+    .act-no b{display:block;font-size:48px;line-height:1;color:var(--teal);margin-top:7px}
+    .act h3{font-size:23px;line-height:1.35;margin:0 0 7px}
+    .act p{margin:0;color:var(--muted)}
+    .act-result{
+      min-height:90px;border-radius:15px;padding:15px;
+      display:flex;flex-direction:column;justify-content:center;
+      background:var(--teal-pale);border:1px solid var(--teal-line);color:var(--teal);
+      font-size:13px;font-weight:800;
+    }
+    .act-result strong{font-size:17px;color:var(--navy)}
+    .act.danger{border-color:#E8B8B8;background:linear-gradient(90deg,#fff,var(--danger-pale))}
+    .act.danger .act-no,.act.danger .act-no b{color:var(--danger)}
+    .act.danger .act-result{background:var(--danger-pale);border-color:#E8B8B8;color:var(--danger)}
+    .reveal{
+      text-align:center;background:linear-gradient(135deg,var(--teal-pale),#fff 50%,var(--orange-pale));
+      border:1px solid var(--border);border-radius:28px;padding:55px 30px;
+    }
+    .ale-mark{
+      width:112px;height:112px;margin:0 auto 22px;border-radius:32px;
+      display:grid;place-items:center;background:var(--navy);color:white;
+      font-size:34px;font-weight:950;box-shadow:0 18px 40px rgba(16,47,76,.18);
+    }
+    .reveal p{max-width:730px;margin:10px auto;color:var(--muted);font-size:18px}
+    .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;text-align:left}
+    .principle{background:white;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    .principle-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:14px;background:var(--teal-pale);font-size:24px}
+    .principle:nth-child(2) .principle-icon{background:var(--orange-pale)}
+    .principle h3{font-size:20px;margin:14px 0 6px}
+    .principle p{font-size:15px;margin:0;color:var(--muted)}
+    .plain{display:inline-block;margin-top:14px;padding:5px 10px;border-radius:8px;background:#F2F7FA;color:var(--navy);font-size:12px;font-weight:900}
+    .loop-panel{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .loop-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+    .loop-card h3{margin:0 0 18px;font-size:21px}
+    .role{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed var(--border)}
+    .role:last-child{border-bottom:0}
+    .role-tag{flex:0 0 78px;border-radius:8px;padding:4px 7px;text-align:center;background:var(--teal-pale);color:var(--teal);font-size:12px;font-weight:900}
+    .role:nth-child(2) .role-tag{background:var(--orange-pale);color:var(--orange-dark)}
+    .role p{margin:0;color:var(--muted);font-size:14px}
+    .found{
+      margin-top:20px;padding:20px;border-radius:16px;background:var(--orange-pale);
+      border:1px solid #F0CF9A;color:var(--navy);
+    }
+    .found strong{font-size:22px;color:var(--orange-dark)}
+    .ladder{display:grid;gap:10px}
+    .step{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:12px;border:1px solid var(--border);border-radius:12px;padding:12px}
+    .step-no{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--teal-pale);color:var(--teal);font-weight:900}
+    .step b{font-size:14px}.step span{font-size:12px;color:var(--muted)}
+    .gate{padding:3px 8px;border-radius:999px;background:var(--orange-pale);color:var(--orange-dark)!important;font-weight:900}
+    details{
+      background:white;border:1px solid var(--border);border-radius:16px;
+      margin:12px 0;box-shadow:var(--shadow);overflow:hidden;
+    }
+    summary{list-style:none;cursor:pointer;padding:20px 22px;font-weight:900;display:flex;align-items:center;gap:12px}
+    summary::-webkit-details-marker{display:none}
+    summary::before{content:"＋";width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:var(--teal-pale);color:var(--teal)}
+    details[open] summary::before{content:"−"}
+    .detail-body{padding:0 22px 22px;color:var(--muted)}
+    .detail-body code{background:#EDF4F6;border:1px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--teal)}
+    .audiences{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .audience{background:white;border:1px solid var(--border);border-radius:18px;padding:24px}
+    .audience h3{margin:0 0 7px}.audience p{color:var(--muted);margin:0;font-size:14px}
+    .closing{
+      padding:54px;border-radius:28px;background:var(--navy);color:white;
+      display:flex;align-items:center;gap:35px;justify-content:space-between;
+    }
+    .closing h2{color:white;margin:0 0 8px}
+    .closing p{color:#D7E4EC;margin:0;max-width:690px}
+    .closing .btn{flex:none}
+    footer{margin-top:90px;background:var(--navy);color:#D7E4EC;padding:28px 0;font-size:12px}
+    .footer-inner{display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .footer-inner strong{color:white}
+    .reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+    .reveal-on-scroll.show{opacity:1;transform:none}
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;min-height:auto;padding-top:54px}
+      .hero-visual{max-width:620px}
+      .truth,.loop-panel{grid-template-columns:1fr}
+      .act{grid-template-columns:82px 1fr}.act-result{grid-column:2}
+      .principles,.audiences{grid-template-columns:1fr}
+      .closing{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:600px){
+      .top-title{display:none}.logo{width:126px}.version{display:none}
+      .hero{gap:34px;padding:42px 0 55px}
+      h1{font-size:42px}
+      .hero-visual{padding:20px}.error-badge{right:10px;bottom:16px}
+      .section{padding:68px 0}
+      .truth{padding:30px}
+      .act{grid-template-columns:1fr;padding:22px}.act-result{grid-column:auto}.act-no b{font-size:35px}
+      .reveal{padding:38px 18px}
+      .loop-card{padding:22px}
+      .step{grid-template-columns:38px 1fr}.step .gate{grid-column:2;justify-self:start}
+      .closing{padding:32px 24px}
+      .footer-inner{align-items:flex-start;flex-direction:column}
+    }
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      .reveal-on-scroll{opacity:1;transform:none;transition:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img class="logo" src="vendor/tigerai_logo.png" alt="TigerAI 虎智科技">
+      <div class="top-title">
+        <strong data-t="topTitle">ALE 四幕故事</strong>
+        <span data-t="topSub">從一次實驗，到可查證的 AI 工作方法</span>
+      </div>
+      <div class="top-actions">
+        <span class="version">v2.0.0_codex</span>
+        <button class="lang" id="langBtn" type="button" aria-label="Switch language">EN</button>
+      </div>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero" id="start">
+        <div>
+          <div class="eyebrow" data-t="heroEyebrow">一個真實的 AI 工程實驗</div>
+          <h1 data-t="heroTitle">AI 做得出來，<br><span class="accent">不代表做得對。</span></h1>
+          <p class="hero-lead" data-t="heroLead">我們讓 AI 做出一套電子發票儀表板，卻在驗證時發現：<strong>兩個系統都說「正確」，其實一起錯了 4.5 倍。</strong>這個失敗，成為 ALE 的起點。</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#story"><span data-t="ctaStory">看四幕故事</span><span aria-hidden="true">↓</span></a>
+            <a class="btn btn-secondary" href="#method"><span data-t="ctaMethod">我懂技術，直接看方法</span><span aria-hidden="true">→</span></a>
+          </div>
+          <p class="hero-note" data-t="heroNote">約 4 分鐘讀完。不需要懂 AI、程式或學術名詞。</p>
+        </div>
+
+        <div class="hero-visual" aria-label="兩項驗證都通過，但資料實際膨脹 4.5 倍的示意圖">
+          <div class="data-label" data-t="visualLabel">電子發票儀表板 · 驗證結果</div>
+          <div class="fake-chart" aria-hidden="true">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+          <div class="check-row">
+            <div class="check">✓ <span data-t="dashboardCheck">儀表板：正確</span><span data-t="sameData1">使用資料 A</span></div>
+            <div class="check">✓ <span data-t="databaseCheck">資料庫：正確</span><span data-t="sameData2">也是資料 A</span></div>
+          </div>
+          <div class="error-badge"><b>×4.5</b><span data-t="inflated">原始資料已膨脹</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section" id="problem">
+      <div class="wrap">
+        <div class="truth reveal-on-scroll">
+          <div>
+            <div class="truth-number">4.5×</div>
+            <small data-t="truthSmall">不是小數點誤差，而是整批資料被重複放大</small>
+          </div>
+          <div>
+            <div class="section-kicker" data-t="truthKicker">故事真正的轉折</div>
+            <h2 data-t="truthTitle">兩個答案都說「正確」，卻一起錯了。</h2>
+            <p data-t="truthText">儀表板和資料庫看似互相驗證，其實共用同一份壞資料。當驗證者和被驗證者依賴同一來源，彼此同意不是證據，只是一起犯錯。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="story">
+      <div class="wrap">
+        <div class="section-kicker" data-t="storyKicker">Four acts · 四幕真實故事</div>
+        <h2 data-t="storyTitle">ALE 不是先被設計出來的，<br>是被問題一步步逼出來的。</h2>
+        <p class="section-lead" data-t="storyLead">先有實驗，再有重複；先踩到坑，才知道治理不能只靠 AI 說服另一個 AI。</p>
+
+        <div class="acts">
+          <article class="act reveal-on-scroll">
+            <div class="act-no"><span data-t="actLabel">第一幕</span><b>01</b></div>
+            <div>
+              <h3 data-t="act1Title">AI 真的把儀表板做出來了</h3>
+              <p data-t="act1Text">我是資工，想驗證 AI 能否完成一個端到端任務。於是用電子發票開放資料，讓 AI 從抓資料、聚合、畫圖一路做到部署。</p>
+            </div>
+            <div class="act-result"><span data-t="act1ResultLabel">當時的答案</span><strong data-t="act1Result">可以，AI 做得到。</strong></div>
+          </article>
+
+          <article class="act reveal-on-scroll">
+            <div class="act-no"><span data-t="act2Label">第二幕</span><b>02</b></div>
+            <div>
+              <h3 data-t="act2Title">一次成功，還不能叫方法</h3>
+              <p data-t="act2Text">如果這件事有價值，就不該只成功一次。我開始把每個步驟整理成一條可重複的迴圈，讓 AI 能一輪一輪接著工作。</p>
+            </div>
+            <div class="act-result"><span data-t="act2ResultLabel">新的問題</span><strong data-t="act2Result">能不能穩定重做？</strong></div>
+          </article>
+
+          <article class="act danger reveal-on-scroll">
+            <div class="act-no"><span data-t="act3Label">第三幕</span><b>03</b></div>
+            <div>
+              <h3 data-t="act3Title">驗證通過，不代表真的是對的</h3>
+              <p data-t="act3Text">儀表板與資料庫都顯示正確，卻共同吃到膨脹 4.5 倍的資料。AI 驗 AI，如果共享相同盲點，就會互相背書。</p>
+            </div>
+            <div class="act-result"><span data-t="act3ResultLabel">核心發現</span><strong data-t="act3Result">共識不等於證據。</strong></div>
+          </article>
+
+          <article class="act reveal-on-scroll">
+            <div class="act-no"><span data-t="act4Label">第四幕</span><b>04</b></div>
+            <div>
+              <h3 data-t="act4Title">連寫 ALE 論文，也用 ALE 檢查</h3>
+              <p data-t="act4Text">Claude 寫、Codex 對抗審查、Gemini 形式化；但最後仍由人讀 PDF 原文、跑真實程式。發表前抓回三個錯，包括一段 AI 編造的假日誌。</p>
+            </div>
+            <div class="act-result"><span data-t="act4ResultLabel">真正的原則</span><strong data-t="act4Result">不盲信任何 AI。</strong></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <div class="reveal reveal-on-scroll">
+          <div class="ale-mark">ALE</div>
+          <div class="section-kicker" data-t="revealKicker">這時候，我們才替它取名字</div>
+          <h2 data-t="revealTitle">把 AI 的工作，變成可重複、可查證、有人負責的迴圈。</h2>
+          <p data-t="revealText">ALE 是內部代號。名字不是重點；重點是每一次 AI 產出，都不能只因為另一個 AI 點頭，就被當成事實。</p>
+
+          <div class="principles">
+            <article class="principle">
+              <div class="principle-icon" aria-hidden="true">🚧</div>
+              <h3 data-t="p1Title">機械閘</h3>
+              <p data-t="p1Text">先寫清楚過關條件。測試、證據或必要欄位沒達標，就不能往下走。</p>
+              <span class="plain" data-t="p1Plain">白話：不是說完成就算完成</span>
+            </article>
+            <article class="principle">
+              <div class="principle-icon" aria-hidden="true">🔎</div>
+              <h3 data-t="p2Title">三層驗證</h3>
+              <p data-t="p2Text">程式檢查、獨立資料來源、人類判斷，避免所有驗證共用同一個錯誤來源。</p>
+              <span class="plain" data-t="p2Plain">白話：不要用同一把尺互相證明</span>
+            </article>
+            <article class="principle">
+              <div class="principle-icon" aria-hidden="true">🧩</div>
+              <h3 data-t="p3Title">技能資產化</h3>
+              <p data-t="p3Text">把成功步驟、失敗紀錄與判斷規則保存，讓下一個人或 Agent 能安全接手。</p>
+              <span class="plain" data-t="p3Plain">白話：做過的功課不要歸零</span>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="proof">
+      <div class="wrap">
+        <div class="section-kicker" data-t="proofKicker">Method applied to itself · 方法反過來檢查自己</div>
+        <h2 data-t="proofTitle">不是「三個 AI 投票」，而是刻意讓它們扮演不同角色。</h2>
+        <p class="section-lead" data-t="proofLead">模型名稱會改變，角色分離不會。生產者不能替自己蓋章；AI 也不能取代人類對真實世界的責任。</p>
+
+        <div class="loop-panel">
+          <div class="loop-card reveal-on-scroll">
+            <h3 data-t="rolesTitle">這篇論文怎麼被檢查</h3>
+            <div class="role"><span class="role-tag">Claude</span><p data-t="role1">把想法操作化、整理草稿與證據。</p></div>
+            <div class="role"><span class="role-tag">Codex</span><p data-t="role2">站在反方找漏洞，做獨立對抗式審查。</p></div>
+            <div class="role"><span class="role-tag">Gemini</span><p data-t="role3">形式化、補強與再次檢查結構。</p></div>
+            <div class="role"><span class="role-tag" data-t="humanTag">人類</span><p data-t="role4">讀原始 PDF、跑真程式、決定能否發表並負責。</p></div>
+            <div class="found"><span data-t="foundLabel">發表前攔下</span> <strong data-t="foundStrong">3 個錯誤</strong><br><span data-t="foundText">其中包含一段看似合理、實際不存在的 AI 假日誌。</span></div>
+          </div>
+
+          <div class="loop-card reveal-on-scroll">
+            <h3 data-t="stagesTitle">從想法到發表，不跳關</h3>
+            <div class="ladder">
+              <div class="step"><span class="step-no">1</span><b data-t="s1">想法與問題</b><span class="gate" data-t="g1">問題成立？</span></div>
+              <div class="step"><span class="step-no">2</span><b data-t="s2">收斂與草稿</b><span class="gate" data-t="g2">主張清楚？</span></div>
+              <div class="step"><span class="step-no">3</span><b data-t="s3">獨立審查</b><span class="gate" data-t="g3">漏洞處理？</span></div>
+              <div class="step"><span class="step-no">4</span><b data-t="s4">證據與實驗</b><span class="gate" data-t="g4">證據足夠？</span></div>
+              <div class="step"><span class="step-no">5</span><b data-t="s5">人類核可</b><span class="gate" data-t="g5">願意負責？</span></div>
+              <div class="step"><span class="step-no">6</span><b data-t="s6">預印本／DOI</b><span class="gate" data-t="g6">誠實揭露</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="technical">
+      <div class="wrap">
+        <div class="section-kicker" data-t="techKicker">For technical readers · 給想繼續深入的人</div>
+        <h2 data-t="techTitle">故事先講完，技術細節放在這裡。</h2>
+        <p class="section-lead" data-t="techLead">這些內容很重要，但不要求每位讀者一進站就理解。</p>
+
+        <details>
+          <summary data-t="d1Title">Stage–Gate：怎麼阻止 AI 自行宣告完成？</summary>
+          <div class="detail-body" data-t="d1Body">每個階段都有可檢查的進入與退出條件。Gate 不依賴「模型覺得可以」，而依賴測試結果、證據狀態、審查結論與人類核可。未通過就回到前一階段修正。</div>
+        </details>
+        <details>
+          <summary data-t="d2Title">A2A Agent：下一個 Codex／Claude／Gemini 怎麼接手？</summary>
+          <div class="detail-body" data-t="d2Body">Agent 從 <code>AGENTS.md</code> 與 <code>CURRENT_HANDOFF.md</code> 恢復狀態，依角色權限工作。沒有真正 A2A server 時使用 Local Workspace Adapter，禁止虛構呼叫、執行紀錄或 Gate 通過。</div>
+        </details>
+        <details>
+          <summary data-t="d3Title">n8n：如何把方法變成看得見的工作流？</summary>
+          <div class="detail-body" data-t="d3Body">教學版提供 8 個 workflow，把 State、Router、Gate、獨立審查與人類核可畫成節點。它們用來理解與實驗；未連接真實服務時，不應被描述為已完成的生產系統。</div>
+        </details>
+        <details>
+          <summary data-t="d4Title">為什麼先發預印本，而不是急著宣稱完成？</summary>
+          <div class="detail-body" data-t="d4Body">目前方法論與第一案例可以公開，但正式論文仍等待第二案例數據。先發布誠實標明限制的預印本，比用不完整證據做過度宣稱更符合 ALE 自己的治理原則。</div>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="audience">
+      <div class="wrap">
+        <div class="section-kicker" data-t="audKicker">Who is it for? · 這跟誰有關</div>
+        <h2 data-t="audTitle">只要你把重要工作交給 AI，這個問題就已經發生。</h2>
+        <div class="audiences">
+          <article class="audience"><h3 data-t="a1Title">開發者與 Agent 團隊</h3><p data-t="a1Text">避免 Agent 自己產出、自己驗證、自己宣布成功，卻沒有獨立證據。</p></article>
+          <article class="audience"><h3 data-t="a2Title">研究者與內容工作者</h3><p data-t="a2Text">讓引文、實驗、來源與 AI 參與方式可追溯，而不是只交出漂亮結果。</p></article>
+          <article class="audience"><h3 data-t="a3Title">企業與決策者</h3><p data-t="a3Text">知道哪一步可以自動化、哪一步必須有人負責，以及失敗時如何回溯。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="closing reveal-on-scroll">
+          <div>
+            <h2 data-t="closeTitle">ALE 最重要的，不是讓 AI 做更多。</h2>
+            <p data-t="closeText">而是當 AI 做得越來越多時，我們仍知道什麼是真的、誰檢查過，以及最後由誰負責。</p>
+          </div>
+          <a class="btn btn-primary" href="#start"><span data-t="backTop">回到故事開頭</span><span aria-hidden="true">↑</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div><strong>ALE Story-first Interactive Site</strong><br><span data-t="footerNote">TigerAI 虎智科技 · 方法論展示頁 · AI 輸出仍須人類查證</span></div>
+      <div>v2.0.0_codex · 2026-06-21</div>
+    </div>
+  </footer>
+
+  <script>
+    const EN = {
+      topTitle:"ALE in Four Acts",topSub:"From one experiment to a verifiable AI work method",
+      heroEyebrow:"A real AI engineering experiment",
+      heroTitle:'AI can build it.<br><span class="accent">That does not make it correct.</span>',
+      heroLead:'We let AI build an e-invoice dashboard, then discovered that <strong>two systems both reported “correct” while sharing data inflated by 4.5×.</strong> That failure became the beginning of ALE.',
+      ctaStory:"Read the four-act story",ctaMethod:"I am technical — show the method",heroNote:"About four minutes. No AI, coding, or academic background required.",
+      visualLabel:"E-invoice dashboard · validation",dashboardCheck:"Dashboard: correct",databaseCheck:"Database: correct",sameData1:"using dataset A",sameData2:"also dataset A",inflated:"source data was inflated",
+      truthSmall:"Not a rounding error — the whole dataset had been duplicated",truthKicker:"The real turning point",truthTitle:'Both answers said “correct.” Both were wrong.',truthText:"The dashboard and database appeared to validate each other, but depended on the same bad data. Agreement is not evidence when the validator and the validated share one source of failure.",
+      storyKicker:"Four acts · A true story",storyTitle:"ALE was not designed first.<br>The problem forced it into existence.",storyLead:"First an experiment, then repetition; only after failure did we learn that governance cannot mean one AI convincing another.",
+      actLabel:"ACT ONE",act1Title:"AI actually built the dashboard",act1Text:"As a computer scientist, I wanted to test whether AI could complete an end-to-end task. Using open e-invoice data, it handled ingestion, aggregation, charts, and deployment.",act1ResultLabel:"The answer then",act1Result:"Yes. AI can do it.",
+      act2Label:"ACT TWO",act2Title:"One success is not yet a method",act2Text:"If it mattered, it should not work only once. I began turning each step into a repeatable loop that AI could continue round after round.",act2ResultLabel:"The next question",act2Result:"Can it repeat reliably?",
+      act3Label:"ACT THREE",act3Title:"Passing validation does not guarantee truth",act3Text:"The dashboard and database both passed while sharing data inflated by 4.5×. AI checking AI will endorse itself when both share the same blind spot.",act3ResultLabel:"The key finding",act3Result:"Consensus is not evidence.",
+      act4Label:"ACT FOUR",act4Title:"Even the ALE paper was checked with ALE",act4Text:"Claude drafted, Codex challenged, and Gemini formalized — but a human still read source PDFs and ran real code. Three errors were caught before release, including a fabricated AI log.",act4ResultLabel:"The real principle",act4Result:"Trust no AI blindly.",
+      revealKicker:"Only then did we give it a name",revealTitle:"Turn AI work into a repeatable, verifiable loop with human accountability.",revealText:"ALE is an internal codename. The name matters less than the rule: an AI output does not become fact merely because another AI agrees.",
+      p1Title:"Mechanical gates",p1Text:"Define exit conditions first. If tests, evidence, or required fields fail, work cannot move forward.",p1Plain:"Plainly: done is not whatever AI calls done.",
+      p2Title:"Three-layer validation",p2Text:"Programmatic checks, independent sources, and human judgment prevent every validator from sharing one blind spot.",p2Plain:"Plainly: do not prove yourself with the same ruler.",
+      p3Title:"Skill capitalization",p3Text:"Preserve successful steps, failure records, and decision rules so the next person or Agent can take over safely.",p3Plain:"Plainly: do not reset learning to zero.",
+      proofKicker:"Method applied to itself",proofTitle:"Not “three AIs voting,” but deliberately separated roles.",proofLead:"Model names will change; role separation will not. Producers cannot approve themselves, and AI cannot replace human responsibility for reality.",
+      rolesTitle:"How this paper was checked",role1:"Operationalized the idea and organized drafts and evidence.",role2:"Took the opposing position to find weaknesses independently.",role3:"Formalized, strengthened, and checked structure again.",humanTag:"Human",role4:"Read source PDFs, ran real code, authorized publication, and remained accountable.",foundLabel:"Caught before release:",foundStrong:"3 errors",foundText:"including a plausible-looking AI log that never existed.",
+      stagesTitle:"No skipped gates from idea to release",s1:"Problem and idea",g1:"Valid problem?",s2:"Convergence and draft",g2:"Clear claims?",s3:"Independent review",g3:"Issues resolved?",s4:"Evidence and experiments",g4:"Enough evidence?",s5:"Human approval",g5:"Own the claim?",s6:"Preprint / DOI",g6:"Disclose honestly",
+      techKicker:"For technical readers",techTitle:"The story comes first. Technical detail lives here.",techLead:"These details matter, but no visitor should need them just to understand the problem.",
+      d1Title:"Stage–Gate: how do you stop AI from declaring itself done?",d1Body:"Each stage has checkable entry and exit conditions. Gates rely on tests, evidence state, review findings, and human approval — not on whether a model feels confident. Failure routes work back for correction.",
+      d2Title:"A2A Agent: how does the next Codex, Claude, or Gemini take over?",d2Body:'Agents restore state from <code>AGENTS.md</code> and <code>CURRENT_HANDOFF.md</code>, then work within role permissions. Without a real A2A server, they use the Local Workspace Adapter and must not fabricate calls, execution logs, or passed gates.',
+      d3Title:"n8n: how does the method become a visible workflow?",d3Body:"Eight teaching workflows visualize State, Router, Gate, independent review, and human approval. They support learning and experiments; without connected services they must not be presented as an already deployed production system.",
+      d4Title:"Why release a preprint instead of claiming completion?",d4Body:"The method and first case can be shared now, while a formal paper still awaits second-case data. Publishing a preprint with honest limitations follows ALE better than making strong claims from incomplete evidence.",
+      audKicker:"Who is it for?",audTitle:"If important work is delegated to AI, this problem already applies.",a1Title:"Developers and Agent teams",a1Text:"Prevent Agents from producing, validating, and declaring success without independent evidence.",a2Title:"Researchers and content workers",a2Text:"Make citations, experiments, sources, and AI involvement traceable — not merely polished.",a3Title:"Organizations and decision-makers",a3Text:"Know what can be automated, where human accountability is required, and how failure can be traced.",
+      closeTitle:"ALE is not mainly about making AI do more.",closeText:"It is about still knowing what is true, who checked it, and who is responsible as AI does more.",backTop:"Return to the beginning",
+      footerNote:"TigerAI · Methodology presentation · AI output still requires human verification"
+    };
+    const zh = {};
+    document.querySelectorAll("[data-t]").forEach(el => zh[el.dataset.t] = el.innerHTML);
+    let lang = location.hash === "#en" ? "en" : "zh";
+    const langBtn = document.getElementById("langBtn");
+    function setLang(next){
+      lang = next;
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.querySelectorAll("[data-t]").forEach(el => {
+        const key = el.dataset.t;
+        el.innerHTML = lang === "en" && EN[key] != null ? EN[key] : zh[key];
+      });
+      langBtn.textContent = lang === "en" ? "中" : "EN";
+      try{
+        history.replaceState(null,"",lang === "en" ? "#en" : location.href.split("#")[0]);
+      }catch(e){}
+      try{localStorage.setItem("ale_story_lang",lang)}catch(e){}
+    }
+    langBtn.addEventListener("click",()=>setLang(lang === "en" ? "zh" : "en"));
+    if(location.hash !== "#en"){
+      try{lang = localStorage.getItem("ale_story_lang") || "zh"}catch(e){}
+    }
+    setLang(lang);
+
+    const progress = document.getElementById("progress");
+    function updateProgress(){
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progress.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+    }
+    addEventListener("scroll",updateProgress,{passive:true});
+    updateProgress();
+
+    const reveal = document.querySelectorAll(".reveal-on-scroll");
+    if("IntersectionObserver" in window){
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){entry.target.classList.add("show");observer.unobserve(entry.target)}
+        });
+      },{threshold:.12});
+      reveal.forEach(el => observer.observe(el));
+    }else{
+      reveal.forEach(el => el.classList.add("show"));
+    }
+  </script>
+</body>
+</html>

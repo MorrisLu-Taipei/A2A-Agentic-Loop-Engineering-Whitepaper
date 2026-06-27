@@ -1,0 +1,19 @@
+flowchart LR
+  CI[Context Intake] --> RQ[Requirement + Acceptance Criteria + Spec Invariants]
+  RQ --> KR[Knowledge Retrieval / Reuse]
+  KR --> SA[SA 系統分析]
+  SA --> SD[SD 架構設計 + 威脅建模]
+  SD --> TB[Task Breakdown + Test Design]
+  TB --> PG[PG 編碼]
+  PG --> VV[V&V 機械驗證]
+  VV --> SEC[Security & Compliance Gate]
+  SEC --> REV[Reviewer / Human Gate]
+  REV --> GIT[Git / CI-CD / Release]
+  GIT --> DEP[Deployment / Roll-out]
+  DEP --> MON[Monitoring]
+  MON --> FB[Feedback & Retrospective]
+  FB --> SKE[Skill Extraction → Validation → Repository]
+  SKE -. 沉澱可重用技能 .-> KR
+  FB -. 線上訊號轉新需求 .-> RQ
+  VV -. Self-Correction .-> PG
+  SEC -. Self-Correction .-> PG

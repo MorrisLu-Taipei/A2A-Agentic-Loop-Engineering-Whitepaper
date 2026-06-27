@@ -1,0 +1,10 @@
+99_References/*.pdf
+**/_raw_snapshots/
+**/_QUARANTINE_DO_NOT_PUBLISH/
+06_Publication/investor/
+04_Evidence/ALE_CaseStudy_EInvoice_v1_gemini.md
+*.env
+!*.env.example
+.DS_Store
+Thumbs.db
+_shot_*.png

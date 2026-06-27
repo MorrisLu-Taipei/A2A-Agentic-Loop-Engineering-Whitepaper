@@ -1,0 +1,154 @@
+{
+  "name": "WF-2 Gate-Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{state:{open_findings:0,gate_status:{G3:'pending'}}}}];"
+      },
+      "id": "n2",
+      "name": "Init State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const s=$json.state;/* change to 1 to see fail */ s.open_findings=0;return [{json:Object.assign({},$json,{state:s})}];"
+      },
+      "id": "n3",
+      "name": "Review stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.state.open_findings }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "n4",
+      "name": "Gate G3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const s=$json.state;s.gate_status.G3='pass';return [{json:Object.assign({},$json,{state:s})}];"
+      },
+      "id": "n5",
+      "name": "Update pass",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        220
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n6",
+      "name": "Back to Router fail",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Init State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init State": {
+      "main": [
+        [
+          {
+            "node": "Review stub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review stub": {
+      "main": [
+        [
+          {
+            "node": "Gate G3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate G3": {
+      "main": [
+        [
+          {
+            "node": "Update pass",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Back to Router fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "stage-gate: set open_findings=1 to take the fail branch."
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "WF-9 Deep Literature Discovery + Verify",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trig",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 研究主題(換成你的題目)。WF-9 是『探索型』:會撈出你還不知道的論文,\n// 不像 WF-4/7 只驗證你已有的一筆引用。\nreturn [{ json: { query: 'shared-context false pass multi-agent code generation verification', per_page: 5 } }];"
+      },
+      "id": "topic",
+      "name": "Topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.openalex.org/works?per-page=' + ($json.per_page||5) + '&sort=cited_by_count:desc&mailto=tiger.ai.tw@gmail.com&search=' + encodeURIComponent($json.query) }}",
+        "options": {}
+      },
+      "id": "openalex",
+      "name": "Discover (OpenAlex)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// OpenAlex 免金鑰、涵蓋頂級期刊/會議(IEEE/ACM/Springer/Elsevier),比 arXiv 廣得多。\n// 取被引數最高的前 N 筆當『頂級候選』,保留 DOI 與 OA 全文連結。\nconst r = ($json.results) || [];\nif (!r.length) return [{ json: { _empty: true, note: 'OpenAlex no results — try another query' } }];\nreturn r.slice(0, ($('Topic').first().json.per_page)||5).map(function(w){\n  const doi = (w.doi||'').replace('https://doi.org/','');\n  const venue = (w.primary_location && w.primary_location.source && w.primary_location.source.display_name)\n             || (w.host_venue && w.host_venue.display_name) || '(unknown venue)';\n  const oa = (w.open_access && w.open_access.oa_url) || '';\n  return { json: {\n    title: w.display_name, year: w.publication_year, venue: venue,\n    cited_by: w.cited_by_count, doi: doi,\n    is_oa: !!(w.open_access && w.open_access.is_oa), oa_url: oa\n  }};\n});"
+      },
+      "id": "rank",
+      "name": "Rank + Screen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.doi ? ('https://doi.org/' + $json.doi) : 'https://api.openalex.org/works' }}",
+        "options": {}
+      },
+      "id": "doilive",
+      "name": "Validate DOI (live)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 320],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 對齊探索結果(Rank+Screen)與 DOI 驗活結果(本節點輸入),逐筆出『閘判定』。\n// 紅線:探索 agent 可能幻覺或讀錯結論 → 任何一筆都『預設不可引用』,\n//       必須再過『全文閱讀 + DOI 驗活 + 人類複核』才放行(對應 ALE L1 引文反向教訓)。\nconst cands = $('Rank + Screen').all();\nreturn $input.all().map(function(it, i){\n  const c = (cands[i] && cands[i].json) || {};\n  const httpErr = it.json && it.json.error;\n  const doi_live = !!c.doi && !httpErr;\n  return { json: {\n    title: c.title, year: c.year, venue: c.venue, cited_by: c.cited_by,\n    doi: c.doi || null, doi_live: doi_live,\n    is_oa: c.is_oa, oa_url: c.oa_url || null,\n    gate: {\n      can_cite: false,\n      needs_fulltext_read: true,\n      human_review_required: true,\n      reason: 'discovery may hallucinate or misread conclusions; cite only after full-text read + DOI live + human review'\n    }\n  }};\n});"
+      },
+      "id": "verdict",
+      "name": "Verdict + Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 320]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Topic", "type": "main", "index": 0 }]] },
+    "Topic": { "main": [[{ "node": "Discover (OpenAlex)", "type": "main", "index": 0 }]] },
+    "Discover (OpenAlex)": { "main": [[{ "node": "Rank + Screen", "type": "main", "index": 0 }]] },
+    "Rank + Screen": { "main": [[{ "node": "Validate DOI (live)", "type": "main", "index": 0 }]] },
+    "Validate DOI (live)": { "main": [[{ "node": "Verdict + Gate", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "teaching_note": "DISCOVERY (not just verify). Hits OpenAlex (free, no key) which covers top-tier venues (IEEE/ACM/Springer/Elsevier) that arXiv misses. Two-stage: rank by citations -> live DOI check -> Verdict gate forces full-text read + human review before any citation. Extend the same way with Semantic Scholar (api.semanticscholar.org), Crossref (api.crossref.org), Unpaywall (full text), or Scopus (key). Model calls use a generic OpenAI-compatible endpoint; notifications are stubs; runs in Docker."
+  }
+}

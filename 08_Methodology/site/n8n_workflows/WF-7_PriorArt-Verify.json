@@ -1,0 +1,98 @@
+{
+  "name": "WF-7 PriorArt-Verify",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{ids:'2603.15611,2509.06216'}}];"
+      },
+      "id": "n2",
+      "name": "Refs to verify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://export.arxiv.org/api/query?id_list=' + $json.ids + '&max_results=10' }}",
+        "options": {}
+      },
+      "id": "n3",
+      "name": "arXiv batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const x=String($json.data||JSON.stringify($json));const terms=['Code-A1','Agentic Software Engineering'];const matrix=terms.map(t=>({term:t,found:x.indexOf(t.split(' ')[0])>=0}));return [{json:{matrix:matrix}}];"
+      },
+      "id": "n4",
+      "name": "Build matrix",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Refs to verify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refs to verify": {
+      "main": [
+        [
+          {
+            "node": "arXiv batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "arXiv batch": {
+      "main": [
+        [
+          {
+            "node": "Build matrix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "prior-art verification: really queries arXiv (the naming/prior-art pitfalls we hit)."
+  }
+}

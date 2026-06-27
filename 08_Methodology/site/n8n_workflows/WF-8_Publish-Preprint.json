@@ -1,0 +1,154 @@
+{
+  "name": "WF-8 Publish-Preprint",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{title:'Governing Agentic Software Development with Executable Evidence: Mechanical Gates, Human Review, and Skill Capitalization',author:'Yeh-Hsing Lu',orcid:'0009-0006-5373-0586',version:'3.0',license:'CC-BY-4.0'}}];"
+      },
+      "id": "n2",
+      "name": "Build metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const m=$json;const ok=!!(m.title&&m.author&&m.orcid&&m.license==='CC-BY-4.0');return [{json:Object.assign({},m,{ready:ok,note:ok?'metadata consistent - deposit via ORCID login':'FIX metadata'})}];"
+      },
+      "id": "n3",
+      "name": "Consistency check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.ready ? 1 : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "n4",
+      "name": "Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{doi:'10.5281/zenodo.SANDBOX',status:'draft created'}}];"
+      },
+      "id": "n5",
+      "name": "Deposit sandbox stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        220
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n6",
+      "name": "Fix metadata",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build metadata": {
+      "main": [
+        [
+          {
+            "node": "Consistency check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consistency check": {
+      "main": [
+        [
+          {
+            "node": "Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready?": {
+      "main": [
+        [
+          {
+            "node": "Deposit sandbox stub",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fix metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "publish: metadata consistency then (sandbox) DOI. Reminder: log into Zenodo via ORCID before deposit."
+  }
+}

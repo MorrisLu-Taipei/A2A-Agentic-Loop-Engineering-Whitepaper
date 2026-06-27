@@ -1,0 +1,115 @@
+/* === TigerAI 標準版型:可收合左側選單 ===
+   依 02_BiddingSystem 官方版型 + TigerAI Fresh Business 視覺標準。所有頁面共用。 */
+:root{
+  --tiger-navy:#102F4C;--tiger-navy-2:#173E59;
+  --tiger-teal:#167C77;--tiger-teal-pale:#DDF3F1;--tiger-teal-line:#A8DCD9;
+  --tiger-orange:#EE9E39;--tiger-orange-dark:#B66B16;--tiger-orange-pale:#FFF0DA;
+  --tiger-muted:#5D7589;--tiger-border:#D8E8EE;
+  --brand:#167C77;--brand-strong:#11635F;--cta:#EE9E39;
+  --muted:#5D7589;--soft:#8497a8;--text:#102F4C;
+  --green:#167C77;--green-bg:#DDF3F1;
+  --radius:20px;--shadow:0 14px 40px rgba(31,71,92,.08);--side:240px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+  background:radial-gradient(circle at 12% 8%,#DFF4F2 0,transparent 27%),
+    radial-gradient(circle at 92% 14%,#FFF0D9 0,transparent 28%),
+    linear-gradient(135deg,#F9FCFF,#F8F6EF);background-attachment:fixed;color:var(--text);min-height:100vh;}
+
+/* 頂部 */
+.header{background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--tiger-border);
+  padding:12px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:30;}
+.ham{width:44px;height:44px;border:1px solid var(--tiger-border);background:#fff;border-radius:10px;cursor:pointer;
+  color:var(--muted);font-size:18px;display:grid;place-items:center;flex:none}
+.ham:hover{border-color:var(--brand);color:var(--brand)}
+.header .logo{height:30px;display:block;flex:none}
+.titlechip{display:flex;flex-direction:column;gap:1px;margin-left:2px;padding:6px 14px;border:1px solid var(--tiger-border);
+  border-radius:12px;background:#fff;box-shadow:var(--shadow);min-width:0}
+.titlechip b{font-weight:700;font-size:15px;white-space:nowrap}
+.titlechip small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:none}
+.pill{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;
+  border:1px solid var(--tiger-border);background:#fff;white-space:nowrap}
+.pill .dot{width:7px;height:7px;border-radius:50%}
+.pill.ok{background:var(--green-bg);color:#0f766e;border-color:#cbeae4}
+.pill.ok .dot{background:var(--green);animation:tgpulse 2.4s infinite}
+@keyframes tgpulse{0%{box-shadow:0 0 0 0 rgba(22,124,119,.45)}70%{box-shadow:0 0 0 6px rgba(22,124,119,0)}100%{box-shadow:0 0 0 0 rgba(22,124,119,0)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.navitem:focus-visible,.langtoggle button:focus-visible,.ham:focus-visible{outline:3px solid var(--tiger-orange);outline-offset:2px}
+.langtoggle{display:inline-flex;border:1px solid var(--tiger-border);border-radius:999px;overflow:hidden;background:#fff}
+.langtoggle button{border:0;background:transparent;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted)}
+.langtoggle button.active{background:var(--tiger-navy);color:#fff}
+
+/* 主體:可收合左側 + 內容 */
+.shell{display:flex;min-height:calc(100vh - 59px);align-items:flex-start}
+.sidebar{width:var(--side);padding:18px 14px;flex-shrink:0;position:sticky;top:59px;height:calc(100vh - 59px);
+  overflow:auto;transition:width .18s ease}
+.side-label{font-size:11px;letter-spacing:.12em;color:var(--soft);font-weight:700;padding:0 10px 8px}
+.navitem{display:flex;align-items:center;gap:11px;padding:10px 11px;margin-bottom:4px;border:1px solid transparent;
+  width:100%;cursor:pointer;background:none;color:var(--muted);font-size:14.5px;font-weight:600;border-radius:11px;
+  text-align:left;transition:.15s;text-decoration:none}
+.navitem .ic{width:30px;height:30px;flex:none;border-radius:8px;display:grid;place-items:center;background:#f1f4f8;color:var(--soft);font-size:15px}
+.navitem:hover{background:#fff;color:var(--text);box-shadow:var(--shadow)}
+.navitem.active{background:var(--tiger-teal-pale);color:var(--tiger-teal);border-color:var(--tiger-teal-line);font-weight:700}
+.navitem.active .ic{background:#fff;color:var(--tiger-teal)}
+.navtext{white-space:nowrap;overflow:hidden}
+.helpcard{margin-top:16px;padding:14px;border:1px solid var(--tiger-border);border-radius:14px;
+  background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:var(--shadow)}
+.helpcard b{font-size:13.5px}.helpcard p{margin:.4em 0 0;font-size:12.5px;color:var(--muted)}
+
+/* 收合 */
+.shell.collapsed .sidebar{width:70px}
+.shell.collapsed .navtext,.shell.collapsed .side-label,.shell.collapsed .helpcard{display:none}
+.shell.collapsed .navitem{justify-content:center;padding:9px}
+
+.content{flex:1;min-width:0;padding:24px 28px 60px;max-width:1180px;margin:0 auto;width:100%}
+
+/* 區塊標題色條 */
+.section-title{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;margin:0 0 6px}
+.section-title::before{content:"";width:5px;height:22px;border-radius:3px;background:var(--brand)}
+.page-sub{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.6}
+
+@media(max-width:860px){
+  /* 手機:側欄改「抽屜式」—— 預設滑出隱藏,☰ 滑入覆蓋,不再壓縮內容 */
+  .sidebar{position:fixed;z-index:40;top:59px;left:0;height:calc(100vh - 59px);width:min(280px,84vw);
+    background:#F8F6EF;box-shadow:0 18px 50px rgba(31,71,92,.30);
+    transform:translateX(-100%);transition:transform .22s ease}
+  .shell:not(.collapsed) .sidebar{transform:translateX(0)}
+  .shell.collapsed .sidebar{transform:translateX(-100%);width:min(280px,84vw)}
+  .content{padding:20px 15px 48px}
+  .titlechip small{display:none}
+  /* header 不溢出:標題可縮可截斷,確保右側資料/語言鈕留在畫面內 */
+  .header{gap:9px;padding:10px 12px}
+  .titlechip{min-width:0;flex:0 1 auto;padding:5px 11px}
+  .titlechip b{overflow:hidden;text-overflow:ellipsis;font-size:14px}
+  .header .logo{height:26px}
+  .pill{padding:5px 9px;font-size:12px}
+}
+/* 超小螢幕:隱藏「資料截至」pill,把空間留給標題與語言鈕 */
+@media(max-width:480px){
+  .pills .pill{display:none}
+  .titlechip b{font-size:14.5px}
+}
+
+/* TigerAI 品牌色捲軸(取代瀏覽器預設;teal 系) */
+*{scrollbar-width:thin;scrollbar-color:var(--tiger-teal-line) transparent}        /* Firefox */
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--tiger-teal-line);border-radius:999px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--tiger-teal);background-clip:content-box}
+::-webkit-scrollbar-corner{background:transparent}
+/* 深色區塊(如問數頁 SQL 區)用深色捲軸 */
+.sql::-webkit-scrollbar-thumb,.tbl-wrap thead th{scrollbar-color:#3a5a66 transparent}
+.sql::-webkit-scrollbar-thumb{background:#3a5a66;background-clip:content-box}
+
+/* Header 跑馬燈(白色中段;慢速、灰字、滑入) */
+.marquee{flex:1 1 0;min-width:0;overflow:hidden;align-self:center;margin:0 14px;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.marquee .mq{display:inline-block;white-space:nowrap;padding-left:100%;
+  color:#7a8a98;font-size:12.5px;font-weight:600;letter-spacing:.02em;
+  will-change:transform;animation:mqRun 92s linear infinite}
+.marquee:hover .mq{animation-play-state:paused}
+@keyframes mqRun{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+@media(max-width:1100px){.marquee{display:none}.pills{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.marquee .mq{animation:none}}

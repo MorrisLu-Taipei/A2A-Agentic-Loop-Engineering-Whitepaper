@@ -1,0 +1,98 @@
+{
+  "name": "WF-4 Verify",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{arxiv_id:'2512.03097'}}];"
+      },
+      "id": "n2",
+      "name": "Finding",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://export.arxiv.org/api/query?id_list=' + $json.arxiv_id }}",
+        "options": {}
+      },
+      "id": "n3",
+      "name": "Query arXiv",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const x=String($json.data||JSON.stringify($json));const ok=x.indexOf('Adversarial Consensus')>=0;return [{json:{verified:ok,note:ok?'title matches':'MISMATCH - do not cite'}}];"
+      },
+      "id": "n4",
+      "name": "Verify match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Finding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finding": {
+      "main": [
+        [
+          {
+            "node": "Query arXiv",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query arXiv": {
+      "main": [
+        [
+          {
+            "node": "Verify match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "SOUL: do not trust AI. Really hits arXiv API to verify a citation. No key needed."
+  }
+}

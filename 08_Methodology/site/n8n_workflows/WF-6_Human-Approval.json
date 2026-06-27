@@ -1,0 +1,96 @@
+{
+  "name": "WF-6 Human-Approval",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{action:'publish/DOI',needs_human:true}}];"
+      },
+      "id": "n2",
+      "name": "High-risk action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook"
+      },
+      "id": "n3",
+      "name": "Human Approval Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{approved:true,note:'human signed off'}}];"
+      },
+      "id": "n4",
+      "name": "Proceed after approval",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "High-risk action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High-risk action": {
+      "main": [
+        [
+          {
+            "node": "Human Approval Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Approval Wait": {
+      "main": [
+        [
+          {
+            "node": "Proceed after approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "human-in-the-loop: Wait node blocks until human resumes."
+  }
+}

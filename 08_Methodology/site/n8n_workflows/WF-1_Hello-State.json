@@ -1,0 +1,94 @@
+{
+  "name": "WF-1 Hello-State",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "t",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{state:{research_id:'demo',draft_version:'v0',gate_status:{G2:'pending',G3:'pending',G4:'blocked'},open_findings:1}}}];"
+      },
+      "id": "n2",
+      "name": "Init State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const s=$json.state;const order=['s02_draft','s03_review','s04_evidence'];const g={s02_draft:'G2',s03_review:'G3',s04_evidence:'G4'};const next=order.find(k=>s.gate_status[g[k]]!=='pass')||'done';return [{json:Object.assign({},$json,{next_skill:next})}];"
+      },
+      "id": "n3",
+      "name": "ALE Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n4",
+      "name": "Show next_skill",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Init State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init State": {
+      "main": [
+        [
+          {
+            "node": "ALE Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ALE Router": {
+      "main": [
+        [
+          {
+            "node": "Show next_skill",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "teaching_note": "State Object + Router. Execute then inspect each node's state."
+  }
+}

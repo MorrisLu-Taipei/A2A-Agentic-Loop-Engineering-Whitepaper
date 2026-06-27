@@ -1,0 +1,13 @@
+stateDiagram-v2
+  [*] --> Draft
+  Draft --> Candidate: schema + guardrail 補齊
+  Candidate --> Validated: 通過自動化測試 + eval
+  Validated --> Certified: 多專案實證 + 人類核可
+  Validated --> Deprecated
+  Certified --> Deprecated: 被更佳技能取代
+  Draft --> Blocked: 重大資安/品質風險
+  Candidate --> Blocked
+  Validated --> Blocked
+  Certified --> Blocked
+  Deprecated --> [*]
+  Blocked --> [*]

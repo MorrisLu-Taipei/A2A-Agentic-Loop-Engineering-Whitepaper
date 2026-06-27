@@ -1,0 +1,11 @@
+flowchart LR
+  CI[Context Intake] --> RQ[Requirement + Acceptance Criteria + Spec Invariants]
+  RQ --> KR[Knowledge Retrieval / Reuse] --> SA[SA] --> SD[SD + Threat Model]
+  SD --> TB[Task Breakdown + Test Design] --> PG[PG Coding] --> VV[V&V Mechanical]
+  VV --> SEC[Security & Compliance Gate] --> REV[Reviewer / Human Gate]
+  REV --> GIT[Git / CI-CD / Release] --> DEP[Deployment] --> MON[Monitoring]
+  MON --> FB[Feedback & Retrospective] --> SKE[Skill Extraction → Validation → Repository]
+  SKE -. reusable skills .-> KR
+  FB -. signals → new requirements .-> RQ
+  VV -. self-correction .-> PG
+  SEC -. self-correction .-> PG

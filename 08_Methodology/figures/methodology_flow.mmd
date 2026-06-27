@@ -1,0 +1,32 @@
+flowchart TD
+  H([人類 Founder<br/>洞察·真實證據·方向·最終負責]):::human
+
+  H --> S0[00 Ideas<br/>真實踩坑→開放問題]
+  S0 -->|G0 值得投入| S1[01 Consolidation<br/>外部研究後收斂主題/定位/新穎性]
+  S1 -->|G1 收斂| D[02 Draft<br/>Claude 操作化成稿]
+
+  D --> R{獨立對抗式審查<br/>生產者≠審查者}:::loop
+  R --> CX[Codex<br/>挑過度宣稱·漏引·誤讀·設計實驗]:::ai
+  R --> GM[Gemini<br/>形式化·補程式·文獻·再審]:::ai
+  CX --> V[★ 人類/Claude 查核原始來源 ★<br/>讀 PDF 原文·跑真實程式·查 arXiv]:::verify
+  GM --> V
+  V -->|建議屬實| FIX[修正 + 遞增版號<br/>保留舊版]
+  V -->|建議有誤/AI 造假| REJ[駁回該建議<br/>記錄理由→07 Lessons]
+  FIX --> CONV{收斂?<br/>主張↔證據↔引文一致}
+  REJ --> CONV
+  CONV -->|否| R
+  CONV -->|是 G2/G3| E[04 Evidence<br/>案例 + 受控實驗]
+
+  E -->|G4 有實測證據| DD[05 DueDiligence<br/>prior-art 窮盡·原創性·新穎性]
+  DD -->|G5 引文核驗·新穎性清楚| P[06 Publication<br/>取 DOI / 投稿]
+  P --> L[07 Lessons Learned<br/>回饋全程]
+  L -.回饋.-> S0
+
+  REF[(99 References<br/>證據主幹)]:::ref -.全程查核.-> V
+  M[08 Methodology<br/>本流程的反身描述]:::ref -.描述.-> R
+
+  classDef human fill:#102F4C,color:#fff;
+  classDef ai fill:#EE9E39,color:#000;
+  classDef verify fill:#167C77,color:#fff;
+  classDef loop fill:#f4f4f4,color:#000;
+  classDef ref fill:#e8e8e8,color:#000;
